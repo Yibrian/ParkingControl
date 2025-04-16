@@ -1,3 +1,58 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Botón base */
+.btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 0.375rem; /* Rounded corners */
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+  
+  /* Botón para guardar cambios (azul) */
+  .btn-save {
+    background-color: #2563EB; /* Azul */
+    color: #ffffff; /* Blanco */
+  }
+  
+  .btn-save:hover {
+    background-color: #1D4ED8; /* Azul más oscuro */
+  }
+  
+  /* Botón para añadir nuevas cosas (verde) */
+  .btn-add {
+    background-color: #27AE60; /* Verde */
+    color: #ffffff; /* Blanco */
+  }
+  
+  .btn-add:hover {
+    background-color: #219653; /* Verde más oscuro */
+  }
+  
+  /* Botón para desactivar (rojo) */
+  .btn-disable {
+    background-color: #CF0018; /* Rojo */
+    color: #ffffff; /* Blanco */
+  }
+  
+  .btn-disable:hover {
+    background-color: #A80013; /* Rojo más oscuro */
+  }
+  
+  /* Botón para editar (borde negro) */
+  .btn-edit {
+    background-color: transparent; /* Fondo transparente */
+    color: #424343; /* Negro */
+    border: 1px solid #424343; /* Borde negro */
+  }
+  
+  .btn-edit:hover {
+    background-color: #f5f5f5; /* Fondo gris claro */
+  }

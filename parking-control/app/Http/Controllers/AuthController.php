@@ -32,13 +32,25 @@ class AuthController extends Controller
             return response()->json(['error' => $validator->errors()], Response::HTTP_BAD_REQUEST);
         }
 
-        $credentials = request(['email', 'password']);
+        $credentials = $request->only(['email', 'password']);
 
         if (!$token = auth()->attempt($credentials)) {
             return response()->json(['error' => 'Datos de acceso incorrectos. Por favor, verifica tus credenciales.'], Response::HTTP_UNAUTHORIZED);
         }
 
-        return $this->respondWithToken($token);
+        $user = auth()->user();
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_in' => auth()->factory()->getTTL() * 60,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'rol' => $user->rol, // Incluye el rol del usuario
+            ],
+        ], Response::HTTP_OK);
     }
 
     public function unauthorized()
