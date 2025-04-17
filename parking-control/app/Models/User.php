@@ -18,10 +18,13 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $fillable = [
         'name',
+        'last_name',
         'email',
         'password',
+        'phone',
         'rol',
-        'empresa_id',
+        'active',
+        'profile_image',
     ];
 
     /**
@@ -65,5 +68,15 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims(): array
     {
         return [];
+    }
+
+    public function getProfileImageUrlAttribute()
+    {
+        if ($this->profile_image) {
+            return asset('storage/' . $this->profile_image); // Imagen personalizada del usuario
+        }
+
+        // Ruta de la imagen predeterminada
+        return asset('images/default-profile.png');
     }
 }

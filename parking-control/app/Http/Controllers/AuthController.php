@@ -47,8 +47,9 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
+                'last_name' => $user->last_name, 
                 'email' => $user->email,
-                'rol' => $user->rol, // Incluye el rol del usuario
+                'rol' => $user->rol,
             ],
         ], Response::HTTP_OK);
     }
@@ -62,17 +63,24 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:100|min:2',
+            'last_name' => 'required|string|max:100|min:2', // Validación para 'last_name'
             'email' => 'required|email|unique:users,email',
             'password' => 'required|string|max:255|min:8',
+            'phone' => 'required|string|max:15', // Cambiado de 'celular' a 'phone'
         ], [
             'name.required' => 'El campo nombre es obligatorio.',
+            'last_name.required' => 'El campo apellido es obligatorio.', // Mensaje de error para 'last_name'
             'name.min' => 'El nombre debe tener al menos :min caracteres.',
+            'last_name.min' => 'El apellido debe tener al menos :min caracteres.',
             'name.max' => 'El nombre no puede tener más de :max caracteres.',
+            'last_name.max' => 'El apellido no puede tener más de :max caracteres.',
             'email.required' => 'El campo correo es obligatorio.',
             'email.unique' => 'El correo ya está registrado.',
             'email.email' => 'El correo no tiene el formato correcto.',
             'password.required' => 'El campo contraseña es obligatorio.',
             'password.min' => 'El campo contraseña debe tener mínimo :min caracteres.',
+            'phone.required' => 'El campo teléfono es obligatorio.',
+            'phone.max' => 'El número de teléfono no puede tener más de :max caracteres.',
         ]);
 
         if ($validator->fails()) {
@@ -84,10 +92,12 @@ class AuthController extends Controller
         if (!$exists) {
             $new = User::create([
                 'name' => htmlspecialchars($request->input('name')),
+                'last_name' => htmlspecialchars($request->input('last_name')), // Guardar 'last_name'
                 'email' => htmlspecialchars($request->input('email')),
                 'password' => Hash::make($request->input('password')),
                 'rol' => 'CLIENTE',
                 'empresa_id' => null,
+                'phone' => htmlspecialchars($request->input('phone')), // Cambiado de 'celular' a 'phone'
             ]);
 
             if (!$new) {
@@ -107,7 +117,17 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        $user = auth()->user();
+
+        return response()->json([
+            'id' => $user->id,
+            'name' => $user->name,
+            'last_name' => $user->last_name,
+            'email' => $user->email,
+            'phone' => $user->phone, // Cambiado de 'celular' a 'phone'
+            'rol' => $user->rol,
+            'profile_image_url' => $user->profile_image_url,
+        ]);
     }
 
     /**

@@ -18,7 +18,13 @@ const Register = () => {
             return;
         }
         try {
-            await api.post('/auth/register', { name, lastName, email, password, phone });
+            await api.post('/auth/register', {
+                name,
+                last_name: lastName,
+                email,
+                password,
+                phone, 
+            });
             toast.success('Usuario registrado exitosamente. Ahora puedes iniciar sesión.');
         } catch (err) {
             if (err.response && err.response.data.error) {
@@ -132,10 +138,10 @@ const Register = () => {
                             />
                         </div>
 
-                        {/* Celular */}
+                        {/* Teléfono */}
                         <div>
                             <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
-                                Celular
+                                Teléfono
                             </label>
                             <input
                                 id="phone"
