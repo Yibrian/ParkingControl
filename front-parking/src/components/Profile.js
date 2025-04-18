@@ -9,6 +9,7 @@ const Profile = () => {
         last_name: '',
         email: '',
         phone: '',
+        profile_image_url: '', // Agregar el campo para la URL del avatar
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [password, setPassword] = useState('');
@@ -30,7 +31,7 @@ const Profile = () => {
     const handleSaveChanges = async (e) => {
         e.preventDefault();
         try {
-            await api.put('/profile', {
+            const response = await api.put('/profile', {
                 name: user.name,
                 last_name: user.last_name,
                 email: user.email,
@@ -38,6 +39,11 @@ const Profile = () => {
                 password,
                 password_confirmation: confirmPassword,
             });
+
+            // Actualizar el usuario en localStorage
+            const updatedUser = response.data;
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
             alert('Perfil actualizado correctamente.');
             setIsModalOpen(false);
         } catch (error) {
@@ -52,60 +58,53 @@ const Profile = () => {
                 <div className="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>
                     <div className="space-y-6">
+                        {/* Avatar */}
+                        <div className="flex justify-center mb-6">
+                            <img
+                                src={user.profile_image_url || 'http://localhost:8000/images/default-profile.png'}
+                                alt="Avatar"
+                                className="h-28 w-28 rounded-full border-2 border-gray-300"
+                            />
+                        </div>
+
                         {/* Nombre y Apellido */}
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label htmlFor="name" className="block text-sm font-medium text-gray-900">
+                                <label className="block text-sm font-medium text-gray-900">
                                     Nombres
                                 </label>
-                                <input
-                                    id="name"
-                                    type="text"
-                                    value={user.name}
-                                    readOnly
-                                    className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100"
-                                />
+                                <p className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100">
+                                    {user.name}
+                                </p>
                             </div>
                             <div>
-                                <label htmlFor="lastName" className="block text-sm font-medium text-gray-900">
+                                <label className="block text-sm font-medium text-gray-900">
                                     Apellidos
                                 </label>
-                                <input
-                                    id="lastName"
-                                    type="text"
-                                    value={user.last_name}
-                                    readOnly
-                                    className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100"
-                                />
+                                <p className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100">
+                                    {user.last_name}
+                                </p>
                             </div>
                         </div>
 
                         {/* Email */}
                         <div>
-                            <label htmlFor="email" className="block text-sm font-medium text-gray-900">
+                            <label className="block text-sm font-medium text-gray-900">
                                 Email
                             </label>
-                            <input
-                                id="email"
-                                type="email"
-                                value={user.email}
-                                readOnly
-                                className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100"
-                            />
+                            <p className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100">
+                                {user.email}
+                            </p>
                         </div>
 
-                        {/* Celular */}
+                        {/* Teléfono */}
                         <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
+                            <label className="block text-sm font-medium text-gray-900">
                                 Teléfono
                             </label>
-                            <input
-                                id="phone"
-                                type="text"
-                                value={user.phone}
-                                onChange={(e) => setUser({ ...user, phone: e.target.value })}
-                                className="block w-full rounded-md border px-3 py-2 text-gray-900"
-                            />
+                            <p className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100">
+                                {user.phone}
+                            </p>
                         </div>
 
                         {/* Botón Editar */}

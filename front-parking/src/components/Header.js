@@ -1,10 +1,22 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Header = ({ title, currentUser }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const navigate = useNavigate();
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
+    };
+
+    const handleProfileClick = () => {
+        navigate('/profile'); 
+    };
+
+    const handleLogoutClick = () => {
+        localStorage.removeItem('currentUser'); // Eliminar datos del usuario del localStorage
+        localStorage.removeItem('token'); // Eliminar el token del localStorage
+        navigate('/login'); // Redirigir al login
     };
 
     return (
@@ -27,9 +39,9 @@ const Header = ({ title, currentUser }) => {
                 >
                     {/* Avatar */}
                     <img
-                    src={currentUser?.profile_image_url || 'https://via.placeholder.com/40'}
-                    alt="User Avatar"
-                    className="w-10 h-10 rounded-full"
+                        src={currentUser?.profile_image_url || 'https://via.placeholder.com/40'}
+                        alt="User Avatar"
+                        className="w-10 h-10 rounded-full"
                     />
                     {/* User Info */}
                     <div className="text-left">
@@ -56,18 +68,18 @@ const Header = ({ title, currentUser }) => {
                 {/* Dropdown Menu */}
                 {isDropdownOpen && (
                     <div className="absolute right-0 mt-2 w-48 bg-white shadow-md rounded-lg">
-                        <a
-                            href="#"
-                            className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                        <button
+                            onClick={handleProfileClick}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
                             Mi perfil
-                        </a>
-                        <a
-                            href="#"
-                            className="block px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
+                        </button>
+                        <button
+                            onClick={handleLogoutClick}
+                            className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100"
                         >
                             Salir
-                        </a>
+                        </button>
                     </div>
                 )}
             </div>
