@@ -1,29 +1,47 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import api from '../services/api'; // Asegúrate de tener configurado el cliente API
 
-const Header = ({ title, currentUser }) => {
+const Header = ({ title }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState({
+        name: 'Usuario',
+        email: 'email@example.com',
+        profile_image_url: 'http://localhost:8000/default_image/default-profile.png', // Imagen predeterminada
+    });
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            try {
+                const response = await api.get('/profile'); // Llama al mismo endpoint que el Profile
+                setCurrentUser(response.data);
+            } catch (error) {
+                console.error('Error fetching user profile:', error);
+            }
+        };
+
+        fetchUser();
+    }, []);
 
     const toggleDropdown = () => {
         setIsDropdownOpen(!isDropdownOpen);
     };
 
     const handleProfileClick = () => {
-        navigate('/profile'); 
+        navigate('/profile');
     };
 
     const handleLogoutClick = () => {
-        localStorage.removeItem('currentUser'); // Eliminar datos del usuario del localStorage
-        localStorage.removeItem('token'); // Eliminar el token del localStorage
-        navigate('/login'); // Redirigir al login
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('token');
+        navigate('/login');
     };
 
     return (
         <header className="flex items-center justify-between bg-white shadow-md px-6 py-4">
             {/* Left Section: Title and Search Bar */}
             <div className="flex items-center space-x-4 w-full">
-                {/* Search Bar */}
                 <input
                     type="text"
                     placeholder="Buscar"
@@ -39,14 +57,14 @@ const Header = ({ title, currentUser }) => {
                 >
                     {/* Avatar */}
                     <img
-                        src={currentUser?.profile_image_url || 'https://via.placeholder.com/40'}
+                        src={currentUser.profile_image_url || 'http://localhost:8000/default_image/default-profile.png'}
                         alt="User Avatar"
                         className="w-10 h-10 rounded-full"
                     />
                     {/* User Info */}
                     <div className="text-left">
-                        <p className="text-sm font-medium text-gray-900">{currentUser?.name || 'Usuario'}</p>
-                        <p className="text-xs text-gray-500">{currentUser?.email || 'email@example.com'}</p>
+                        <p className="text-sm font-medium text-gray-900">{currentUser.name || 'Usuario'}</p>
+                        <p className="text-xs text-gray-500">{currentUser.email || 'email@example.com'}</p>
                     </div>
                     {/* Dropdown Icon */}
                     <svg

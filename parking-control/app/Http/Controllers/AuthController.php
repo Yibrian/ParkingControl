@@ -40,6 +40,11 @@ class AuthController extends Controller
 
         $user = auth()->user();
 
+        // Verificar si el usuario está activo
+        if (!$user->active) {
+            return response()->json(['error' => 'El usuario está desactivado.'], Response::HTTP_FORBIDDEN);
+        }
+
         return response()->json([
             'access_token' => $token,
             'token_type' => 'bearer',
@@ -47,9 +52,10 @@ class AuthController extends Controller
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
-                'last_name' => $user->last_name, 
+                'last_name' => $user->last_name,
                 'email' => $user->email,
                 'rol' => $user->rol,
+                'profile_image_url' => $user->profile_image_url,
             ],
         ], Response::HTTP_OK);
     }
@@ -90,21 +96,21 @@ class AuthController extends Controller
         $exists = User::where('email', htmlspecialchars($request->input('email')))->first();
         
         if (!$exists) {
-            $new = User::create([
+            $newUser = User::create([
                 'name' => htmlspecialchars($request->input('name')),
-                'last_name' => htmlspecialchars($request->input('last_name')), // Guardar 'last_name'
+                'last_name' => htmlspecialchars($request->input('last_name')),
                 'email' => htmlspecialchars($request->input('email')),
                 'password' => Hash::make($request->input('password')),
                 'rol' => 'CLIENTE',
-                'empresa_id' => null,
-                'phone' => htmlspecialchars($request->input('phone')), // Cambiado de 'celular' a 'phone'
+                'phone' => htmlspecialchars($request->input('phone')),
+                'userimg_url' => 'https://res.cloudinary.com/dhdvp5zp6/image/upload/v1745363194/default-profile_moiiy5.png', 
             ]);
 
-            if (!$new) {
+            if (!$newUser) {
                 return response()->json(['error' => 'No se logró crear'], Response::HTTP_INTERNAL_SERVER_ERROR);
             }
-
-            return response()->json($new, Response::HTTP_CREATED);
+            
+            return response()->json($newUser, Response::HTTP_CREATED);
         } else {
             return response()->json(['error' => 'Ya existe un usuario con ese email'], Response::HTTP_BAD_REQUEST);
         }
@@ -124,7 +130,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'last_name' => $user->last_name,
             'email' => $user->email,
-            'phone' => $user->phone, // Cambiado de 'celular' a 'phone'
+            'phone' => $user->phone,
             'rol' => $user->rol,
             'profile_image_url' => $user->profile_image_url,
         ]);

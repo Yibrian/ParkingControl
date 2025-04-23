@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('rol')->default('CLIENTE');
             $table->string('phone');
             $table->boolean('active')->default(true); // Estado del usuario (activo/desactivado)
-            $table->string('profile_image')->nullable(); // Ruta de la imagen de perfil
+            $table->string('userimg_url')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

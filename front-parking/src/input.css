@@ -16,24 +16,24 @@
     transition: background-color 0.3s ease, color 0.3s ease;
   }
   
-  /* Botón para guardar cambios (azul) */
+  /* Botón para activar (verde) */
   .btn-save {
-    background-color: #2563EB; /* Azul */
-    color: #ffffff; /* Blanco */
-  }
-  
-  .btn-save:hover {
-    background-color: #1D4ED8; /* Azul más oscuro */
-  }
-  
-  /* Botón para añadir nuevas cosas (verde) */
-  .btn-add {
     background-color: #27AE60; /* Verde */
     color: #ffffff; /* Blanco */
   }
   
-  .btn-add:hover {
+  .btn-save:hover {
     background-color: #219653; /* Verde más oscuro */
+  }
+  
+  /* Botón para añadir (azul) */
+  .btn-add {
+    background-color: #2563EB; /* Azul */
+    color: #ffffff; /* Blanco */
+  }
+  
+  .btn-add:hover {
+    background-color: #1D4ED8; /* Azul más oscuro */
   }
   
   /* Botón para desactivar (rojo) */

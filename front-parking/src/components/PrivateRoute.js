@@ -1,4 +1,3 @@
-// filepath: c:\Users\Yibrian Alvarez\Documents\VisualStudio\laravel\front-parking\src\components\PrivateRoute.js
 import React from 'react';
 import { Navigate } from 'react-router-dom';
 

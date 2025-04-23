@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import SlideLayout from './SlideLayout';
 import Header from './Header';
 import api from '../services/api';
+import { toast } from 'react-toastify';
 
 const Profile = () => {
     const [user, setUser] = useState({
@@ -9,7 +10,6 @@ const Profile = () => {
         last_name: '',
         email: '',
         phone: '',
-        profile_image_url: '', // Agregar el campo para la URL del avatar
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [password, setPassword] = useState('');
@@ -22,6 +22,7 @@ const Profile = () => {
                 setUser(response.data);
             } catch (error) {
                 console.error('Error fetching user profile:', error);
+                toast.error('Error al cargar el perfil. Inténtalo de nuevo.');
             }
         };
 
@@ -30,30 +31,47 @@ const Profile = () => {
 
     const handleSaveChanges = async (e) => {
         e.preventDefault();
-        try {
-            const response = await api.put('/profile', {
-                name: user.name,
-                last_name: user.last_name,
-                email: user.email,
-                phone: user.phone,
-                password,
-                password_confirmation: confirmPassword,
-            });
 
-            // Actualizar el usuario en localStorage
-            const updatedUser = response.data;
+        const payload = {
+            name: user.name,
+            last_name: user.last_name,
+            email: user.email,
+            phone: user.phone,
+        };
+
+        if (password) {
+            payload.password = password;
+            payload.password_confirmation = confirmPassword;
+        }
+
+        try {
+            const response = await api.put('/profile', payload);
+
+            // Actualizar el estado del usuario y localStorage
+            const updatedUser = response.data.user;
+            setUser(updatedUser);
             localStorage.setItem('currentUser', JSON.stringify(updatedUser));
 
-            alert('Perfil actualizado correctamente.');
+            toast.success('Perfil actualizado correctamente.');
             setIsModalOpen(false);
         } catch (error) {
+            if (error.response && error.response.data) {
+                const errors = error.response.data.errors || error.response.data.error;
+                if (typeof errors === 'object') {
+                    Object.values(errors).forEach((err) => toast.error(err));
+                } else {
+                    toast.error(errors);
+                }
+            } else {
+                toast.error('Error al actualizar el perfil. Inténtalo de nuevo.');
+            }
             console.error('Error updating profile:', error);
         }
     };
 
     return (
         <SlideLayout activePage="/profile">
-            <Header title="Mi Perfil" currentUser={user} />
+            <Header title="Mi Perfil" />
             <div className="px-6 py-4">
                 <div className="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>
@@ -61,7 +79,7 @@ const Profile = () => {
                         {/* Avatar */}
                         <div className="flex justify-center mb-6">
                             <img
-                                src={user.profile_image_url || 'http://localhost:8000/images/default-profile.png'}
+                                src="http://localhost:8000/default_image/default-profile.png" // Actualiza la URL
                                 alt="Avatar"
                                 className="h-28 w-28 rounded-full border-2 border-gray-300"
                             />

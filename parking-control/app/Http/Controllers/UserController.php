@@ -1,12 +1,14 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpFoundation\Response;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Api\Upload\UploadApi;
 
 class UserController extends Controller
 {
@@ -14,72 +16,83 @@ class UserController extends Controller
      * Actualizar el perfil del usuario autenticado.
      */
     public function updateProfile(Request $request)
-{
-    $user = auth()->user();
+    {
+        $user = auth()->user();
 
-    $request->validate([
-        'name' => 'required|string|max:100|min:2',
-        'last_name' => 'required|string|max:100|min:2',
-        'email' => 'required|email|unique:users,email,' . $user->id,
-        'phone' => 'nullable|string|max:15',
-        'password' => 'nullable|string|min:8|confirmed',
-    ]);
+        \Log::info('Datos recibidos:', $request->all());
 
-    $user->update([
-        'name' => $request->input('name'),
-        'last_name' => $request->input('last_name'),
-        'email' => $request->input('email'),
-        'phone' => $request->input('phone'),
-        'password' => $request->input('password') ? Hash::make($request->input('password')) : $user->password,
-    ]);
+        // Validar los datos enviados
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable|string|max:100|min:2',
+            'last_name' => 'nullable|string|max:100|min:2',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'phone' => 'nullable|string|max:15',
+            'password' => 'nullable|string|min:8|confirmed',
+        ]);
 
-    return response()->json(['message' => 'Perfil actualizado correctamente.'], Response::HTTP_OK);
-}
+        if ($validator->fails()) {
+            return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Actualizar solo los campos enviados en la solicitud
+        $user->fill($request->only(['name', 'last_name', 'email', 'phone']));
+
+        // Actualizar la contraseña si se proporciona
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        // Guardar los cambios en la base de datos
+        $user->save();
+
+        return response()->json([
+            'message' => 'Perfil actualizado correctamente.',
+            'user' => $user,
+        ], Response::HTTP_OK);
+    }
 
     /**
      * Cambiar el estado de un usuario (activar/desactivar).
      */
     public function toggleActive($id)
     {
-        $admin = auth()->user();
-
-        if (!$admin->isAdmin()) {
-            return response()->json(['error' => 'No tienes permisos para realizar esta acción.'], 403);
-        }
-
         $user = User::find($id);
 
         if (!$user) {
             return response()->json(['error' => 'Usuario no encontrado.'], 404);
         }
 
-        $user->active = !$user->active; // Cambiar el estado
+        $user->active = !$user->active;
         $user->save();
 
         return response()->json(['message' => 'Estado del usuario actualizado.', 'active' => $user->active], 200);
     }
 
-    /**
-     * Actualizar la imagen de perfil del usuario autenticado.
-     */
-    public function updateProfileImage(Request $request)
+    public function createUser(Request $request)
     {
-        $user = auth()->user();
-
-        $request->validate([
-            'profile_image' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:100|min:2',
+            'last_name' => 'required|string|max:100|min:2',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8',
+            'phone' => 'required|string|max:15',
+            'rol' => 'required|in:ADMINISTRADOR,EMPLEADO,CLIENTE',
         ]);
 
-        // Subir la imagen
-        $path = $request->file('profile_image')->store('profile_images', 'public');
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
 
-        // Actualizar el usuario con la nueva ruta de la imagen
-        $user->update(['profile_image' => $path]);
-
-        return response()->json([
-            'message' => 'Imagen de perfil actualizada exitosamente.',
-            'profile_image_url' => $user->profile_image_url,
+        $user = User::create([
+            'name' => $request->input('name'),
+            'last_name' => $request->input('last_name'),
+            'email' => $request->input('email'),
+            'password' => Hash::make($request->input('password')),
+            'phone' => $request->input('phone'),
+            'rol' => $request->input('rol'),
         ]);
+
+        return response()->json(['message' => 'Usuario creado exitosamente.', 'user' => $user], Response::HTTP_CREATED);
     }
 
     /**
@@ -97,5 +110,11 @@ class UserController extends Controller
             'phone' => $user->phone,
             'profile_image_url' => $user->profile_image_url,
         ], Response::HTTP_OK);
+    }
+
+    public function getUsers()
+    {
+        $users = User::all(['id', 'name', 'last_name', 'email', 'phone', 'rol', 'active']);
+        return response()->json($users, Response::HTTP_OK);
     }
 }
