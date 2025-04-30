@@ -7,14 +7,14 @@ const Header = ({ title }) => {
     const [currentUser, setCurrentUser] = useState({
         name: 'Usuario',
         email: 'email@example.com',
-        profile_image_url: 'http://localhost:8000/default_image/default-profile.png', // Imagen predeterminada
+        userimg: 'profile_images/default-profile.png', // Imagen predeterminada
     });
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await api.get('/profile'); // Llama al mismo endpoint que el Profile
+                const response = await api.get('/profile'); // Llama al endpoint para obtener el perfil
                 setCurrentUser(response.data);
             } catch (error) {
                 console.error('Error fetching user profile:', error);
@@ -57,7 +57,7 @@ const Header = ({ title }) => {
                 >
                     {/* Avatar */}
                     <img
-                        src={currentUser.profile_image_url || 'http://localhost:8000/default_image/default-profile.png'}
+                        src={`http://localhost:8000/storage/${currentUser.userimg}`}
                         alt="User Avatar"
                         className="w-10 h-10 rounded-full"
                     />

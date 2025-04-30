@@ -20,8 +20,8 @@ return new class extends Migration
             $table->string('password');
             $table->string('rol')->default('CLIENTE');
             $table->string('phone');
-            $table->boolean('active')->default(true); // Estado del usuario (activo/desactivado)
-            $table->string('userimg_url')->nullable();
+            $table->boolean('active')->default(true); 
+            $table->string('userimg')->default('profile_images/default-profile.png');
             $table->rememberToken();
             $table->timestamps();
         });

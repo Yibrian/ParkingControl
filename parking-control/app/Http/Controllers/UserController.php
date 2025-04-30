@@ -108,9 +108,51 @@ class UserController extends Controller
             'last_name' => $user->last_name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'profile_image_url' => $user->profile_image_url,
+            'userimg' => $user->userimg,
         ], Response::HTTP_OK);
     }
+
+    public function updateProfilePicture(Request $request)
+{
+    $user = auth()->user();
+
+    // Validar que el archivo sea una imagen y no exceda 1MB
+    $validator = Validator::make($request->all(), [
+        'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif|max:1024', // Máximo 1MB
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json($validator->errors(), Response::HTTP_UNPROCESSABLE_ENTITY);
+    }
+
+    // Obtener el archivo de la solicitud
+    $file = $request->file('profile_picture');
+
+    // Verificar si el usuario ya tiene una imagen personalizada
+    if ($user->userimg !== 'profile_images/default-profile.png') {
+        $existingImagePath = public_path('storage/' . $user->userimg);
+
+        // Si existe una imagen anterior, eliminarla
+        if (file_exists($existingImagePath)) {
+            unlink($existingImagePath);
+        }
+    }
+
+    // Generar un nuevo nombre único para la imagen
+    $newFileName = uniqid() . '.' . $file->getClientOriginalExtension();
+
+    // Mover la nueva imagen al directorio de almacenamiento
+    $file->move(public_path('storage/profile_images'), $newFileName);
+
+    // Actualizar la ruta de la imagen en la base de datos
+    $user->userimg = 'profile_images/' . $newFileName;
+    $user->save();
+
+    return response()->json([
+        'message' => 'Foto de perfil actualizada correctamente.',
+        'userimg' => $user->userimg,
+    ], Response::HTTP_OK);
+}
 
     public function getUsers()
     {
