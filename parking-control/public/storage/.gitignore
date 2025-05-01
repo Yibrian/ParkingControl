@@ -1,9 +1,9 @@
+# Ignorar todo el contenido de public/storage
 *
 !.gitignore
 
-# Ignorar todo el contenido de public/storage/profile_images
-/public/storage/profile_images/*
+# Permitir la carpeta profile_images
+!profile_images/
 
-# Excluir el archivo default-profile.png de ser ignorado
-!/public/storage/profile_images/default-profile.png
-
+# Permitir el archivo default-profile.png dentro de profile_images
+!profile_images/default-profile.png
