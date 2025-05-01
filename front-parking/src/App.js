@@ -9,6 +9,8 @@ import Profile from './components/Profile';
 import PrivateRoute from './components/PrivateRoute'; // Importa el componente
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
+import ForgotPassword from './components/ForgotPassword';
+import ResetPassword from './components/ResetPassword';
 
 function App() {
     return (
@@ -42,6 +44,8 @@ function App() {
                             </PrivateRoute>
                         }
                     />
+                    <Route path="/forgot-password" element={<ForgotPassword />} />
+                    <Route path="/reset-password" element={<ResetPassword />} />
                 </Routes>
             </Router>
         </>

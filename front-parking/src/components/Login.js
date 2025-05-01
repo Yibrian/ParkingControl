@@ -101,12 +101,20 @@ const Login = () => {
                         </button>
                     </div>
                 </form>
-
+                
                 {/* Enlace para registrarse */}
                 <p className="mt-6 text-center text-sm text-gray-500">
                     ¿No tienes cuenta?{' '}
                     <a href="/register" className="font-semibold text-primary hover:text-opacity-90">
                         Regístrate aquí
+                    </a>
+                </p>
+
+                {/* Enlace para recuperar contraseña */}
+                <p className="mt-6 text-center text-sm text-gray-500">
+                    ¿Olvidaste tu contraseña?{' '}
+                    <a href="/forgot-password" className="font-semibold text-primary hover:text-opacity-90">
+                        Recuperar contraseña
                     </a>
                 </p>
             </div>

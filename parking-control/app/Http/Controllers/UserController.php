@@ -159,4 +159,16 @@ class UserController extends Controller
         $users = User::all(['id', 'name', 'last_name', 'email', 'phone', 'rol', 'active']);
         return response()->json($users, Response::HTTP_OK);
     }
+
+    public function getUserByEmail($email)
+    {
+        $user = User::where('email', $email)->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return response()->json($user, Response::HTTP_OK);
+    }
+    
 }
