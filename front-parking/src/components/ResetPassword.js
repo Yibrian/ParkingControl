@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import api from '../services/api';
+import { passwordResetApi } from '../services/api';
+import ParkingControlLogo from '../assets/images/ParkingControl.png'; // Asegúrate de que la ruta sea correcta
 
 const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [searchParams] = useSearchParams();
-    const token = searchParams.get('token'); // Obtener el token del query string
+    const token = searchParams.get('token');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -18,8 +19,7 @@ const ResetPassword = () => {
         }
 
         try {
-            // Llamar al microservicio para restablecer la contraseña
-            await api.post('http://localhost:8081/api/password-reset/reset', {
+            await passwordResetApi.post('/password-reset/reset', {
                 token,
                 password,
                 password_confirmation: confirmPassword,
@@ -37,10 +37,24 @@ const ResetPassword = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50">
             <div className="w-full max-w-md bg-white p-8 shadow-md rounded-lg">
-                <h2 className="text-2xl font-bold text-gray-900 text-center">Restablecer Contraseña</h2>
-                <p className="mt-2 text-sm text-gray-600 text-center">
-                    Ingresa tu nueva contraseña.
+                {/* Logo */}
+                <div className="flex justify-center">
+                    <img
+                        src={ParkingControlLogo}
+                        alt="Parking Control Logo"
+                        className="h-28 w-28"
+                    />
+                </div>
+
+                {/* Título */}
+                <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
+                    Restablecer Contraseña
+                </h2>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                    Ingresa tu nueva contraseña para continuar
                 </p>
+
+                {/* Formulario */}
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="password" className="block text-sm font-medium text-gray-900">
@@ -52,7 +66,7 @@ const ResetPassword = () => {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                             required
-                            className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                            className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
                         />
                     </div>
                     <div>
@@ -65,12 +79,12 @@ const ResetPassword = () => {
                             value={confirmPassword}
                             onChange={(e) => setConfirmPassword(e.target.value)}
                             required
-                            className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                            className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+                        className="w-full rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-opacity-90 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-red-600"
                     >
                         Restablecer Contraseña
                     </button>

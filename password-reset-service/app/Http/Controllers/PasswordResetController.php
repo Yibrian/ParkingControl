@@ -11,28 +11,36 @@ use Illuminate\Support\Str;
 class PasswordResetController extends Controller
 {
     public function sendResetLink(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email|exists:users,email',
-        ]);
+{
+    $request->validate([
+        'email' => 'required|email',
+    ]);
 
-        $email = $request->input('email');
-        $token = Str::random(64);
+    $email = $request->input('email');
 
-        // Guardar el token en la tabla password_resets
-        DB::table('password_resets')->updateOrInsert(
-            ['email' => $email],
-            ['token' => $token, 'created_at' => now()]
-        );
+    // Verificar si el correo existe en la base de datos
+    $userExists = DB::table('users')->where('email', $email)->exists();
 
-        // Enviar el correo con el enlace de restablecimiento
-        Mail::send('emails.password-reset', ['token' => $token], function ($message) use ($email) {
-            $message->to($email);
-            $message->subject('Restablecimiento de contraseña');
-        });
-
-        return response()->json(['message' => 'Correo de restablecimiento enviado.'], 200);
+    if (!$userExists) {
+        return response()->json(['error' => 'El correo no existe en nuestra base de datos.'], 404);
     }
+
+    $token = Str::random(64);
+
+    // Guardar el token en la tabla password_resets
+    DB::table('password_resets')->updateOrInsert(
+        ['email' => $email],
+        ['token' => $token, 'created_at' => now()]
+    );
+
+    // Enviar el correo con el enlace de restablecimiento
+    Mail::send('emails.password-reset', ['token' => $token], function ($message) use ($email) {
+        $message->to($email);
+        $message->subject('Restablecimiento de contraseña');
+    });
+
+    return response()->json(['message' => 'Correo de restablecimiento enviado.'], 200);
+}
 
     public function resetPassword(Request $request)
     {

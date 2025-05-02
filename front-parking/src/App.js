@@ -1,4 +1,3 @@
-// filepath: c:\Users\Yibrian Alvarez\Documents\VisualStudio\laravel\front-parking\src\App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Login from './components/Login';
@@ -6,7 +5,7 @@ import Register from './components/Register';
 import AdminDashboard from './components/AdminDashboard';
 import AdminUsers from './components/AdminUsers';
 import Profile from './components/Profile';
-import PrivateRoute from './components/PrivateRoute'; // Importa el componente
+import PrivateRoute from './components/PrivateRoute'; 
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import ForgotPassword from './components/ForgotPassword';

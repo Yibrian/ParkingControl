@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import api from '../services/api';
+import { passwordResetApi } from '../services/api';
+import ParkingControlLogo from '../assets/images/ParkingControl.png'; // Asegúrate de que la ruta sea correcta
 
 const ForgotPassword = () => {
     const [email, setEmail] = useState('');
@@ -8,15 +9,8 @@ const ForgotPassword = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // Validar que el correo sea de Gmail
-        if (!email.endsWith('@gmail.com')) {
-            toast.error('El correo debe ser una dirección de Gmail.');
-            return;
-        }
-
         try {
-            // Llamar al microservicio para enviar el correo
-            await api.post('http://localhost:8081/api/password-reset/send-link', { email });
+            await passwordResetApi.post('/password-reset/send-link', { email });
             toast.success('Correo de restablecimiento enviado. Revisa tu bandeja de entrada.');
         } catch (error) {
             if (error.response && error.response.status === 404) {
@@ -30,10 +24,24 @@ const ForgotPassword = () => {
     return (
         <div className="flex min-h-screen items-center justify-center bg-gray-50">
             <div className="w-full max-w-md bg-white p-8 shadow-md rounded-lg">
-                <h2 className="text-2xl font-bold text-gray-900 text-center">Recuperar Contraseña</h2>
-                <p className="mt-2 text-sm text-gray-600 text-center">
-                    Ingresa tu correo de Gmail para restablecer tu contraseña.
+                {/* Logo */}
+                <div className="flex justify-center">
+                    <img
+                        src={ParkingControlLogo}
+                        alt="Parking Control Logo"
+                        className="h-28 w-28"
+                    />
+                </div>
+
+                {/* Título */}
+                <h2 className="mt-6 text-center text-2xl font-bold text-gray-900">
+                    Recuperar Contraseña
+                </h2>
+                <p className="mt-2 text-center text-sm text-gray-600">
+                    Ingresa tu correo electrónico para recibir un enlace de restablecimiento
                 </p>
+
+                {/* Formulario */}
                 <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                     <div>
                         <label htmlFor="email" className="block text-sm font-medium text-gray-900">
@@ -45,12 +53,12 @@ const ForgotPassword = () => {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                            className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
                         />
                     </div>
                     <button
                         type="submit"
-                        className="w-full rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+                        className="w-full rounded-md bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md hover:bg-opacity-90 focus:outline focus:outline-2 focus:outline-offset-2 focus:outline-red-600"
                     >
                         Enviar Correo
                     </button>
