@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/api'; // Asegúrate de tener configurado el cliente API
+import api from '../services/api'; 
 
 const Header = ({ title }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);

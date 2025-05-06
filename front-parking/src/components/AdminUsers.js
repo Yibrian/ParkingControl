@@ -32,12 +32,21 @@ const AdminUsers = () => {
 
     const handleAddUser = async (e) => {
         e.preventDefault();
-
+    
         try {
             const response = await api.post('/users', newUser);
-            setUsers([...users, response.data.user]);
+            const createdUser = response.data.user;
+    
+            // Asegúrate de que el nuevo usuario tenga el estado activo
+            const updatedUser = { ...createdUser, active: true };
+    
+            // Añade el usuario actualizado a la lista
+            setUsers([...users, updatedUser]);
+    
             toast.success('Usuario creado exitosamente.');
             setIsModalOpen(false);
+    
+            // Reinicia el formulario del modal
             setNewUser({
                 name: '',
                 last_name: '',
@@ -89,6 +98,7 @@ const AdminUsers = () => {
                             key={user.id}
                             className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg"
                         >
+                            {/* Información del usuario */}
                             <div>
                                 <p className="text-lg font-semibold text-gray-900">
                                     {user.name} {user.last_name}
@@ -96,35 +106,45 @@ const AdminUsers = () => {
                                 <p className="text-sm text-gray-600">{user.email}</p>
                                 <p className="text-sm text-gray-600">{user.phone}</p>
                             </div>
-                            <div className="flex items-center space-x-4">
+
+                            {/* Contenedor de estado, rol y botón */}
+                            <div className="flex items-center space-x-6">
                                 {/* Indicador de estado */}
-                                <span
-                                    className={`h-4 w-4 rounded-full ${
-                                        user.active ? 'bg-green-500' : 'bg-red-500'
-                                    }`}
-                                    title={user.active ? 'Activo' : 'Desactivado'}
-                                ></span>
+                                <div className="flex flex-col items-center w-16">
+                                    <span
+                                        className={`h-4 w-4 rounded-full ${
+                                            user.active ? 'bg-green-500' : 'bg-red-500'
+                                        }`}
+                                        title={user.active ? 'Activo' : 'Desactivado'}
+                                    ></span>
+                                </div>
+
                                 {/* Rol del usuario */}
-                                <span
-                                    className={`px-2 py-1 text-sm rounded-full ${
-                                        user.rol === 'ADMINISTRADOR'
-                                            ? 'bg-orange-100 text-orange-600'
-                                            : user.rol === 'CLIENTE'
-                                            ? 'bg-green-100 text-green-600'
-                                            : 'bg-blue-100 text-blue-600'
-                                    }`}
-                                >
-                                    {user.rol}
-                                </span>
+                                <div className="flex flex-col items-center w-32">
+                                    <span
+                                        className={`px-2 py-1 text-sm rounded-full ${
+                                            user.rol === 'ADMINISTRADOR'
+                                                ? 'bg-orange-100 text-orange-600'
+                                                : user.rol === 'CLIENTE'
+                                                ? 'bg-green-100 text-green-600'
+                                                : 'bg-blue-100 text-blue-600'
+                                        }`}
+                                    >
+                                        {user.rol}
+                                    </span>
+                                </div>
+
                                 {/* Botón de activar/desactivar */}
-                                <button
-                                    onClick={() => handleToggleActive(user.id)}
-                                    className={`btn ${
-                                        user.active ? 'btn-disable' : 'btn-save'
-                                    }`}
-                                >
-                                    {user.active ? 'Desactivar' : 'Activar'}
-                                </button>
+                                <div className="flex flex-col items-center w-24">
+                                    <button
+                                        onClick={() => handleToggleActive(user.id)}
+                                        className={`btn ${
+                                            user.active ? 'btn-disable' : 'btn-save'
+                                        }`}
+                                    >
+                                        {user.active ? 'Desactivar' : 'Activar'}
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     ))}

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useSearchParams, useNavigate } from 'react-router-dom'; // Importa useNavigate
 import { toast } from 'react-toastify';
 import { passwordResetApi } from '../services/api';
 import ParkingControlLogo from '../assets/images/ParkingControl.png'; // Asegúrate de que la ruta sea correcta
@@ -8,7 +8,16 @@ const ResetPassword = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate(); // Hook para redirección
     const token = searchParams.get('token');
+
+    // Verificar si el token está presente en la URL
+    useEffect(() => {
+        if (!token) {
+            toast.error('Acceso no autorizado. Redirigiendo al inicio de sesión...');
+            navigate('/login'); // Redirige al login si no hay token
+        }
+    }, [token, navigate]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -25,6 +34,11 @@ const ResetPassword = () => {
                 password_confirmation: confirmPassword,
             });
             toast.success('Contraseña actualizada correctamente.');
+
+            // Redirigir al usuario al login después de 2 segundos
+            setTimeout(() => {
+                navigate('/login');
+            }, 2000);
         } catch (error) {
             if (error.response && error.response.status === 400) {
                 toast.error('El token es inválido o ha expirado.');
