@@ -1,36 +1,28 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import SlideLayout from './SlideLayout';
 import Header from './Header';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
-    const [user, setUser] = useState({
-        name: '',
-        last_name: '',
-        email: '',
-        phone: '',
-        userimg: '',
+    const [user, setUser] = useState(() => {
+        // Cargar datos desde localStorage al inicializar
+        const storedUser = localStorage.getItem('currentUser');
+        return storedUser
+            ? JSON.parse(storedUser)
+            : {
+                  name: '',
+                  last_name: '',
+                  email: '',
+                  phone: '', // Asegúrate de que el campo phone esté definido
+                  userimg: '',
+              };
     });
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false); // Modal para subir foto
+    const [isPhotoModalOpen, setIsPhotoModalOpen] = useState(false);
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
-    const [selectedFile, setSelectedFile] = useState(null); // Archivo seleccionado para subir
-
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            try {
-                const response = await api.get('/profile');
-                setUser(response.data);
-            } catch (error) {
-                console.error('Error fetching user profile:', error);
-                toast.error('Error al cargar el perfil. Inténtalo de nuevo.');
-            }
-        };
-
-        fetchUserProfile();
-    }, []);
+    const [selectedFile, setSelectedFile] = useState(null);
 
     const handleSaveChanges = async (e) => {
         e.preventDefault();
@@ -57,6 +49,9 @@ const Profile = () => {
 
             toast.success('Perfil actualizado correctamente.');
             setIsModalOpen(false);
+
+            // Recargar la página para reflejar los cambios
+            window.location.reload();
         } catch (error) {
             if (error.response && error.response.data) {
                 const errors = error.response.data.errors || error.response.data.error;
@@ -92,12 +87,17 @@ const Profile = () => {
                 headers: { 'Content-Type': 'multipart/form-data' },
             });
 
-            // Actualizar la imagen del usuario
-            setUser({ ...user, userimg: response.data.userimg });
+            // Actualizar la imagen del usuario en el estado y en localStorage
+            const updatedUser = { ...user, userimg: response.data.userimg };
+            setUser(updatedUser);
+            localStorage.setItem('currentUser', JSON.stringify(updatedUser));
+
             toast.success('Foto de perfil actualizada correctamente.');
-            setIsPhotoModalOpen(false); // Cerrar el modal
+            setIsPhotoModalOpen(false);
+
+            // Recargar la página para reflejar los cambios
+            window.location.reload();
         } catch (error) {
-            console.error('Error uploading profile picture:', error);
             toast.error('Error al subir la foto de perfil. Inténtalo de nuevo.');
         }
     };
@@ -118,7 +118,7 @@ const Profile = () => {
                             />
                             <button
                                 type="button"
-                                onClick={() => setIsPhotoModalOpen(true)} // Abrir el modal de subir foto
+                                onClick={() => setIsPhotoModalOpen(true)}
                                 className="mt-4 rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
                             >
                                 Subir Foto

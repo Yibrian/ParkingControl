@@ -55,7 +55,8 @@ class AuthController extends Controller
                 'last_name' => $user->last_name,
                 'email' => $user->email,
                 'rol' => $user->rol,
-                'profile_image_url' => $user->profile_image_url,
+                'userimg' => $user->userimg,
+                'phone' => $user->phone,	
             ],
         ], Response::HTTP_OK);
     }

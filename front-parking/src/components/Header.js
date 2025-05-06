@@ -12,6 +12,13 @@ const Header = ({ title }) => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        const storedUser = localStorage.getItem('currentUser');
+        if (storedUser) {
+            setCurrentUser(JSON.parse(storedUser));
+        }
+    }, []);
+
+    useEffect(() => {
         const fetchUser = async () => {
             try {
                 const response = await api.get('/profile'); // Llama al endpoint para obtener el perfil
@@ -33,7 +40,7 @@ const Header = ({ title }) => {
     };
 
     const handleLogoutClick = () => {
-        localStorage.removeItem('currentUser');
+        localStorage.removeItem('currentUser'); // Elimina userimg junto con los demás datos
         localStorage.removeItem('token');
         navigate('/login');
     };

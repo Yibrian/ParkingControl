@@ -15,21 +15,18 @@ const Login = () => {
             const response = await api.post('/auth/login', { email, password });
             const { access_token, user } = response.data;
 
-            // Guarda el token en localStorage
+            // Guarda el token y el usuario en localStorage
             localStorage.setItem('token', access_token);
+            localStorage.setItem('currentUser', JSON.stringify(user)); // Incluye userimg aquí
 
             // Redirige según el rol del usuario
             if (user.rol === 'ADMINISTRADOR') {
-                navigate('/admin'); // Redirige al dashboard de administrador
+                navigate('/admin');
             } else {
-                toast.error('No tienes permisos para acceder a esta sección.');
+                navigate('/profile');
             }
         } catch (err) {
-            if (err.response && err.response.data.error) {
-                toast.error(err.response.data.error);
-            } else {
-                toast.error('Error al iniciar sesión. Inténtalo de nuevo.');
-            }
+            toast.error('Error al iniciar sesión. Inténtalo de nuevo.');
         }
     };
 
