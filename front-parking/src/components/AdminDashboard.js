@@ -1,15 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import SlideLayout from './SlideLayout';
-import api from '../services/api';
+import { parkingSpacesApi } from '../services/api';
+import { toast } from 'react-toastify';
 
 const AdminDashboard = () => {
     const [currentUser, setCurrentUser] = useState({});
+    const [spaces, setSpaces] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentSpace, setCurrentSpace] = useState({
+        name: '',
+        vehicle_type: '',
+        price_per_hour: '',
+        total_spaces: '',
+        start_time: '',
+        end_time: '',
+    });
 
+    // Fetch current user
     useEffect(() => {
         const fetchCurrentUser = async () => {
             try {
-                const response = await api.get('/profile');
+                const response = await parkingSpacesApi.get('/profile');
                 setCurrentUser(response.data);
             } catch (error) {
                 console.error('Error fetching current user:', error);
@@ -19,12 +31,237 @@ const AdminDashboard = () => {
         fetchCurrentUser();
     }, []);
 
+    // Fetch spaces from the backend
+    useEffect(() => {
+        const fetchSpaces = async () => {
+            try {
+                const response = await parkingSpacesApi.get('/spaces');
+                setSpaces(response.data);
+            } catch (error) {
+                toast.error('Error al cargar los espacios.');
+            }
+        };
+
+        fetchSpaces();
+    }, []);
+
+    // Handle form submission for creating or updating a space
+    const handleSaveSpace = async (e) => {
+        e.preventDefault();
+
+        try {
+            if (currentSpace.id) {
+                // Update an existing space
+                await parkingSpacesApi.put(`/spaces/${currentSpace.id}`, currentSpace);
+                toast.success('Espacio actualizado correctamente.');
+            } else {
+                // Create a new space
+                await parkingSpacesApi.post('/spaces', currentSpace);
+                toast.success('Espacio creado correctamente.');
+            }
+
+            setIsModalOpen(false);
+            setCurrentSpace({
+                name: '',
+                vehicle_type: '',
+                price_per_hour: '',
+                total_spaces: '',
+                start_time: '',
+                end_time: '',
+            });
+
+            // Refresh the list of spaces
+            const response = await parkingSpacesApi.get('/spaces');
+            setSpaces(response.data);
+        } catch (error) {
+            toast.error('Error al guardar el espacio.');
+        }
+    };
+
+    // Handle toggling active state of a space
+    const handleToggleActive = async (id) => {
+        try {
+            const response = await parkingSpacesApi.patch(`/spaces/${id}/toggle-active`);
+            const updatedSpaces = spaces.map((space) =>
+                space.id === id ? { ...space, active: response.data.active } : space
+            );
+            setSpaces(updatedSpaces);
+            toast.success('Estado del espacio actualizado.');
+        } catch (error) {
+            toast.error('Error al cambiar el estado del espacio.');
+        }
+    };
+
     return (
         <SlideLayout activePage="/admin">
             <Header title="Espacios del parqueadero" currentUser={currentUser} />
             <div className="px-6 py-4">
-                <h2 className="text-lg font-semibold text-gray-900">Zona 1</h2>
-                {/* Add your content here */}
+                <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-lg font-semibold text-gray-900">Espacios del Parqueadero</h1>
+                    <button
+                        onClick={() => setIsModalOpen(true)}
+                        className="btn btn-add"
+                    >
+                        Añadir Espacio
+                    </button>
+                </div>
+                <div className="space-y-4">
+                    {spaces.map((space) => (
+                        <div
+                            key={space.id}
+                            className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg"
+                        >
+                            <div>
+                                <h2 className="text-lg font-semibold">{space.name}</h2>
+                                <p>Vehículo: {space.vehicle_type}</p>
+                                <p>Precio/Hr: {new Intl.NumberFormat('es-CO', {
+                                    style: 'currency',
+                                    currency: 'COP',
+                                }).format(space.price_per_hour)}</p>
+                                <p>Espacios Totales: {space.total_spaces}</p>
+                                <p>Hora de Inicio: {space.start_time}</p>
+                                <p>Hora de Fin: {space.end_time}</p>
+                            </div>
+                            <div className="flex items-center space-x-6">
+                                <button
+                                    onClick={() => handleToggleActive(space.id)}
+                                    className={`btn ${space.active ? 'btn-disable' : 'btn-save'}`}
+                                >
+                                    {space.active ? 'Desactivar' : 'Activar'}
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setCurrentSpace(space);
+                                        setIsModalOpen(true);
+                                    }}
+                                    className="btn btn-edit"
+                                >
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                {isModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                            <h2 className="text-lg font-bold mb-4">
+                                {currentSpace.id ? 'Editar Espacio' : 'Añadir Espacio'}
+                            </h2>
+                            <form onSubmit={handleSaveSpace} className="space-y-4">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Nombre
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={currentSpace.name}
+                                        onChange={(e) =>
+                                            setCurrentSpace({ ...currentSpace, name: e.target.value })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Vehículo
+                                    </label>
+                                    <input
+                                        type="text"
+                                        value={currentSpace.vehicle_type}
+                                        onChange={(e) =>
+                                            setCurrentSpace({
+                                                ...currentSpace,
+                                                vehicle_type: e.target.value,
+                                            })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Precio/Hr
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={currentSpace.price_per_hour}
+                                        onChange={(e) =>
+                                            setCurrentSpace({
+                                                ...currentSpace,
+                                                price_per_hour: e.target.value,
+                                            })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Espacios Totales
+                                    </label>
+                                    <input
+                                        type="number"
+                                        value={currentSpace.total_spaces}
+                                        onChange={(e) =>
+                                            setCurrentSpace({
+                                                ...currentSpace,
+                                                total_spaces: e.target.value,
+                                            })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Hora de Inicio
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={currentSpace.start_time}
+                                        onChange={(e) =>
+                                            setCurrentSpace({ ...currentSpace, start_time: e.target.value })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-900">
+                                        Hora de Fin
+                                    </label>
+                                    <input
+                                        type="time"
+                                        value={currentSpace.end_time}
+                                        onChange={(e) =>
+                                            setCurrentSpace({ ...currentSpace, end_time: e.target.value })
+                                        }
+                                        className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                        required
+                                    />
+                                </div>
+                                <div className="flex justify-end space-x-4">
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsModalOpen(false)}
+                                        className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 font-semibold hover:bg-gray-400"
+                                    >
+                                        Cancelar
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        className="rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+                                    >
+                                        Guardar
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
             </div>
         </SlideLayout>
     );

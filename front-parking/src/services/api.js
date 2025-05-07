@@ -8,6 +8,11 @@ export const passwordResetApi = axios.create({
     baseURL: 'http://localhost:8081/api/v1', // URL del servicio password-reset-service
 });
 
+export const parkingSpacesApi = axios.create({
+    baseURL: 'http://localhost:8082/api', // URL del servicio parking-space-service
+});
+
+
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');
     if (token) {
