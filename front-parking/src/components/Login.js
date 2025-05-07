@@ -17,13 +17,15 @@ const Login = () => {
 
             // Guarda el token y el usuario en localStorage
             localStorage.setItem('token', access_token);
-            localStorage.setItem('currentUser', JSON.stringify(user)); // Incluye userimg aquí
+            localStorage.setItem('currentUser', JSON.stringify(user)); // Incluye identification aquí
 
             // Redirige según el rol del usuario
             if (user.rol === 'ADMINISTRADOR') {
                 navigate('/admin');
-            } else {
-                navigate('/profile');
+            } else if (user.rol === 'EMPLEADO') {
+                navigate('/employee');
+            } else if (user.rol === 'CLIENTE') {
+                navigate('/client');
             }
         } catch (err) {
             toast.error('Error al iniciar sesión. Inténtalo de nuevo.');

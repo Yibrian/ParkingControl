@@ -11,6 +11,7 @@ const AdminUsers = () => {
         name: '',
         last_name: '',
         email: '',
+        identification: '', // Añadir identificación
         password: '',
         phone: '',
         rol: 'ADMINISTRADOR',
@@ -51,6 +52,7 @@ const AdminUsers = () => {
                 name: '',
                 last_name: '',
                 email: '',
+                identification: '', // Añadir identificación
                 password: '',
                 phone: '',
                 rol: 'ADMINISTRADOR',
@@ -192,6 +194,19 @@ const AdminUsers = () => {
                                     type="email"
                                     value={newUser.email}
                                     onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                                    className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label htmlFor="identification" className="block text-sm font-medium text-gray-900">
+                                    Identificación
+                                </label>
+                                <input
+                                    id="identification"
+                                    type="text"
+                                    value={newUser.identification}
+                                    onChange={(e) => setNewUser({ ...newUser, identification: e.target.value })}
                                     className="block w-full rounded-md border px-3 py-2 text-gray-900"
                                     required
                                 />

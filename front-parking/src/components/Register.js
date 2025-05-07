@@ -10,6 +10,7 @@ const Register = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [phone, setPhone] = useState('');
+    const [identification, setIdentification] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -22,6 +23,7 @@ const Register = () => {
                 name,
                 last_name: lastName,
                 email,
+                identification, // Enviar identificación
                 password,
                 phone, 
             });
@@ -106,6 +108,38 @@ const Register = () => {
                             />
                         </div>
 
+                        {/* Identificación */}
+                        <div>
+                            <label htmlFor="identification" className="block text-sm font-medium text-gray-900">
+                                Identificación
+                            </label>
+                            <input
+                                id="identification"
+                                name="identification"
+                                type="text"
+                                value={identification}
+                                onChange={(e) => setIdentification(e.target.value)}
+                                required
+                                className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
+                            />
+                        </div>
+
+                        {/* Teléfono */}
+                        <div>
+                            <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
+                                Teléfono
+                            </label>
+                            <input
+                                id="phone"
+                                name="phone"
+                                type="text"
+                                value={phone}
+                                onChange={(e) => setPhone(e.target.value)}
+                                required
+                                className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
+                            />
+                        </div>
+
                         {/* Contraseña */}
                         <div>
                             <label htmlFor="password" className="block text-sm font-medium text-gray-900">
@@ -133,22 +167,6 @@ const Register = () => {
                                 type="password"
                                 value={confirmPassword}
                                 onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
-                                className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
-                            />
-                        </div>
-
-                        {/* Teléfono */}
-                        <div>
-                            <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
-                                Teléfono
-                            </label>
-                            <input
-                                id="phone"
-                                name="phone"
-                                type="text"
-                                value={phone}
-                                onChange={(e) => setPhone(e.target.value)}
                                 required
                                 className="block w-full rounded-md bg-white px-3 py-2 text-base text-gray-900 outline outline-1 outline-gray-300 placeholder:text-gray-400 focus:outline-primary"
                             />

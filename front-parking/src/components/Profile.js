@@ -14,7 +14,8 @@ const Profile = () => {
                   name: '',
                   last_name: '',
                   email: '',
-                  phone: '', // Asegúrate de que el campo phone esté definido
+                  identification: '', 
+                  phone: '', 
                   userimg: '',
               };
     });
@@ -32,6 +33,7 @@ const Profile = () => {
             last_name: user.last_name,
             email: user.email,
             phone: user.phone,
+            identification: user.identification, // Agregar el campo identification
         };
 
         if (password) {
@@ -165,6 +167,16 @@ const Profile = () => {
                             </p>
                         </div>
 
+                        {/* Identificación */}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-900">
+                                Identificación
+                            </label>
+                            <p className="block w-full rounded-md border px-3 py-2 text-gray-900 bg-gray-100">
+                                {user.identification}
+                            </p>
+                        </div>
+
                         {/* Botón Editar */}
                         <div className="flex justify-end">
                             <button
@@ -222,6 +234,18 @@ const Profile = () => {
                                 />
                             </div>
                             <div>
+                                <label htmlFor="identification" className="block text-sm font-medium text-gray-900">
+                                    Identificación
+                                </label>
+                                <input
+                                    id="identification"
+                                    type="text"
+                                    value={user.identification}
+                                    onChange={(e) => setUser({ ...user, identification: e.target.value })}
+                                    className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                />
+                            </div>
+                            <div>
                                 <label htmlFor="phone" className="block text-sm font-medium text-gray-900">
                                     Teléfono
                                 </label>
@@ -233,6 +257,7 @@ const Profile = () => {
                                     className="block w-full rounded-md border px-3 py-2 text-gray-900"
                                 />
                             </div>
+                            
                             <div>
                                 <label htmlFor="password" className="block text-sm font-medium text-gray-900">
                                     Nueva Contraseña

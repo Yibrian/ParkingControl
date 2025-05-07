@@ -5,6 +5,8 @@ import Register from './components/Register';
 import AdminDashboard from './components/AdminDashboard';
 import AdminUsers from './components/AdminUsers';
 import Profile from './components/Profile';
+import ClientDashboard from './components/ClientDashboard';
+import EmployeeDashboard from './components/EmployeeDashboard';
 import PrivateRoute from './components/PrivateRoute'; 
 import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
@@ -40,6 +42,22 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <Profile />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/employee"
+                        element={
+                            <PrivateRoute>
+                                <EmployeeDashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/client"
+                        element={
+                            <PrivateRoute>
+                                <ClientDashboard />
                             </PrivateRoute>
                         }
                     />

@@ -20,6 +20,7 @@ class User extends Authenticatable implements JWTSubject
         'phone',
         'active',
         'userimg', 
+        'identification',
         'password_reset_token',
         'password_reset_token_expires_at',
     ];

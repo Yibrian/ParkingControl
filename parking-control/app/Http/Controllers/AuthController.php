@@ -54,6 +54,7 @@ class AuthController extends Controller
                 'name' => $user->name,
                 'last_name' => $user->last_name,
                 'email' => $user->email,
+                'identification' => $user->identification,
                 'rol' => $user->rol,
                 'userimg' => $user->userimg,
                 'phone' => $user->phone,	
@@ -72,9 +73,13 @@ class AuthController extends Controller
             'name' => 'required|string|max:100|min:2',
             'last_name' => 'required|string|max:100|min:2', // Validación para 'last_name'
             'email' => 'required|email|unique:users,email',
+            'identification' => 'required|string|unique:users,identification|max:20', // Validar identificación
             'password' => 'required|string|max:255|min:8',
             'phone' => 'required|string|max:15', // Cambiado de 'celular' a 'phone'
         ], [
+            'identification.required' => 'El campo identificación es obligatorio.',
+            'identification.unique' => 'La identificación ya está registrada.',
+            'identification.max' => 'La identificación no puede tener más de :max caracteres.',
             'name.required' => 'El campo nombre es obligatorio.',
             'last_name.required' => 'El campo apellido es obligatorio.', // Mensaje de error para 'last_name'
             'name.min' => 'El nombre debe tener al menos :min caracteres.',
@@ -101,6 +106,7 @@ class AuthController extends Controller
                 'name' => htmlspecialchars($request->input('name')),
                 'last_name' => htmlspecialchars($request->input('last_name')),
                 'email' => htmlspecialchars($request->input('email')),
+                'identification' => htmlspecialchars($request->input('identification')),
                 'password' => Hash::make($request->input('password')),
                 'rol' => 'CLIENTE',
                 'phone' => htmlspecialchars($request->input('phone')),
@@ -131,6 +137,7 @@ class AuthController extends Controller
             'name' => $user->name,
             'last_name' => $user->last_name,
             'email' => $user->email,
+            'identification' => $user->identification,
             'phone' => $user->phone,
             'rol' => $user->rol,
             'profile_image_url' => $user->profile_image_url,
