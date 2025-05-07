@@ -182,4 +182,44 @@ class UserController extends Controller
 
         return response()->json($user, Response::HTTP_OK);
     }
+
+    /**
+     * Actualizar un usuario.
+     */
+    public function updateUser(Request $request, $id)
+    {
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json(['error' => 'Usuario no encontrado.'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Validar los datos enviados
+        $validator = Validator::make($request->all(), [
+            'name' => 'nullable|string|max:100|min:2',
+            'last_name' => 'nullable|string|max:100|min:2',
+            'email' => 'nullable|email|unique:users,email,' . $user->id,
+            'identification' => 'nullable|string|unique:users,identification,' . $user->id,
+            'phone' => 'nullable|string|max:15',
+            'rol' => 'nullable|in:ADMINISTRADOR,EMPLEADO,CLIENTE',
+            'password' => 'nullable|string|min:8', // Validar contraseña
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(['error' => $validator->errors()], Response::HTTP_UNPROCESSABLE_ENTITY);
+        }
+
+        // Actualizar solo los campos enviados en la solicitud
+        $user->fill($request->only(['name', 'last_name', 'email', 'identification', 'phone', 'rol']));
+
+        // Actualizar la contraseña si se proporciona
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->input('password'));
+        }
+
+        // Guardar los cambios en la base de datos
+        $user->save();
+
+        return response()->json(['message' => 'Usuario actualizado correctamente.', 'user' => $user], Response::HTTP_OK);
+    }
 }

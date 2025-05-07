@@ -109,26 +109,52 @@ const AdminDashboard = () => {
                     {spaces.map((space) => (
                         <div
                             key={space.id}
-                            className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg"
+                            className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg border border-gray-200"
                         >
-                            <div>
-                                <h2 className="text-lg font-semibold">{space.name}</h2>
-                                <p>Vehículo: {space.vehicle_type}</p>
-                                <p>Precio/Hr: {new Intl.NumberFormat('es-CO', {
-                                    style: 'currency',
-                                    currency: 'COP',
-                                }).format(space.price_per_hour)}</p>
-                                <p>Espacios Totales: {space.total_spaces}</p>
-                                <p>Hora de Inicio: {space.start_time}</p>
-                                <p>Hora de Fin: {space.end_time}</p>
-                            </div>
+                            {/* Información del espacio */}
                             <div className="flex items-center space-x-6">
+                                {/* Espacios disponibles */}
+                                <div className="flex flex-col items-center">
+                                    <span className="text-3xl font-bold text-green-600">
+                                        {space.available_spaces || 0}
+                                    </span>
+                                    <span className="text-sm text-gray-600">
+                                        Libres de {space.total_spaces}
+                                    </span>
+                                </div>
+
+                                {/* Detalles del espacio */}
+                                <div>
+                                    <h2 className="text-lg font-semibold text-gray-900">{space.name}</h2>
+                                    <p className="text-sm text-gray-600">
+                                        Tipo de Vehículo: {space.vehicle_type}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        Horario: {space.start_time} - {space.end_time}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Precio y botones */}
+                            <div className="flex items-center space-x-4">
+                                {/* Precio por hora */}
+                                <span className="px-3 py-1 text-sm font-medium text-gray-700 bg-gray-100 rounded-full">
+                                    {new Intl.NumberFormat('es-CO', {
+                                        style: 'currency',
+                                        currency: 'COP',
+                                    }).format(space.price_per_hour)}{' '}
+                                    por hora
+                                </span>
+
+                                {/* Botón de activar/desactivar */}
                                 <button
                                     onClick={() => handleToggleActive(space.id)}
                                     className={`btn ${space.active ? 'btn-disable' : 'btn-save'}`}
                                 >
                                     {space.active ? 'Desactivar' : 'Activar'}
                                 </button>
+
+                                {/* Botón de editar */}
                                 <button
                                     onClick={() => {
                                         setCurrentSpace(space);
@@ -166,7 +192,7 @@ const AdminDashboard = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">
-                                        Vehículo
+                                        Tipo de Vehículo
                                     </label>
                                     <input
                                         type="text"
@@ -183,7 +209,7 @@ const AdminDashboard = () => {
                                 </div>
                                 <div>
                                     <label className="block text-sm font-medium text-gray-900">
-                                        Precio/Hr
+                                        Precio por Hora
                                     </label>
                                     <input
                                         type="number"
