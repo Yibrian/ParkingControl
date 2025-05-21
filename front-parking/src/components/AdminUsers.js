@@ -65,7 +65,43 @@ const AdminUsers = () => {
         }
     };
 
+    // Validar que siempre haya al menos un administrador y uno activo
+    const validateAdminCount = (usersList, userToUpdate = null, updatedFields = {}) => {
+        // Simula el estado después de la edición/desactivación
+        const simulatedUsers = usersList.map(u => {
+            if (userToUpdate && u.id === userToUpdate.id) {
+                return { ...u, ...updatedFields };
+            }
+            return u;
+        });
+
+        // Filtrar administradores
+        const admins = simulatedUsers.filter(u => u.rol === 'ADMINISTRADOR');
+        const activeAdmins = admins.filter(u => u.active);
+
+        return {
+            hasAdmin: admins.length > 0,
+            hasActiveAdmin: activeAdmins.length > 0,
+        };
+    };
+
+    // Al activar/desactivar usuarios
     const handleToggleActive = async (id) => {
+        // Simula el cambio de estado
+        const userToToggle = users.find(u => u.id === id);
+        const simulatedActive = !userToToggle.active;
+
+        const { hasActiveAdmin } = validateAdminCount(
+            users,
+            userToToggle,
+            { active: simulatedActive }
+        );
+
+        if (userToToggle.rol === 'ADMINISTRADOR' && !hasActiveAdmin) {
+            toast.error('Debe haber al menos un ADMINISTRADOR activo.');
+            return;
+        }
+
         try {
             const response = await api.patch(`/users/${id}/toggle-active`);
             const updatedUsers = users.map((user) =>
@@ -84,8 +120,28 @@ const AdminUsers = () => {
         setIsEditModalOpen(true);
     };
 
+    // Al guardar cambios de edición
     const handleSaveChanges = async (e) => {
         e.preventDefault();
+
+        // Validar que quede al menos un administrador y uno activo
+        const { hasAdmin, hasActiveAdmin } = validateAdminCount(
+            users,
+            currentUser,
+            {
+                rol: currentUser.rol,
+                active: currentUser.active !== undefined ? currentUser.active : true,
+            }
+        );
+
+        if (!hasAdmin) {
+            toast.error('Debe existir al menos un usuario con rol ADMINISTRADOR.');
+            return;
+        }
+        if (!hasActiveAdmin) {
+            toast.error('Debe haber al menos un ADMINISTRADOR activo.');
+            return;
+        }
 
         try {
             const response = await api.put(`/users/${currentUser.id}`, currentUser);
