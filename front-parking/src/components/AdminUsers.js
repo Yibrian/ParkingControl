@@ -87,6 +87,13 @@ const AdminUsers = () => {
 
     // Al activar/desactivar usuarios
     const handleToggleActive = async (id) => {
+        // Obtener el usuario actual desde localStorage
+        const loggedUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (loggedUser && loggedUser.id === id) {
+            toast.error('No puedes desactivar tu propio usuario.');
+            return;
+        }
+
         // Simula el cambio de estado
         const userToToggle = users.find(u => u.id === id);
         const simulatedActive = !userToToggle.active;

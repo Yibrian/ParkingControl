@@ -24,6 +24,7 @@ Route::prefix('v1')->group(function () {
         Route::get('users', [UserController::class, 'getUsers']);
         Route::post('users', [UserController::class, 'createUser']);
         Route::post('/profile/picture', [UserController::class, 'updateProfilePicture']);
+        Route::delete('/profile/picture', [UserController::class, 'deleteProfilePicture']);
         Route::patch('users/{id}/toggle-active', [UserController::class, 'toggleActive']);
         Route::put('/users/{id}', [UserController::class, 'updateUser']);
     });

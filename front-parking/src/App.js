@@ -12,6 +12,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import { ToastContainer } from 'react-toastify';
 import ForgotPassword from './components/ForgotPassword';
 import ResetPassword from './components/ResetPassword';
+import ClientProfile from './components/ClientProfile';
+import ClientReservations from './components/ClientReservations';
+import ClientNotifications from './components/ClientNotifications';
 
 function App() {
     return (
@@ -59,6 +62,30 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <ClientDashboard />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/client/profile"
+                        element={
+                            <PrivateRoute>
+                                <ClientProfile />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/client/reservas"
+                        element={
+                            <PrivateRoute>
+                                <ClientReservations />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/client/notificaciones"
+                        element={
+                            <PrivateRoute>
+                                <ClientNotifications />
                             </PrivateRoute>
                         }
                     />

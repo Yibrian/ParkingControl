@@ -45,6 +45,16 @@ const AdminDashboard = () => {
         fetchSpaces();
     }, []);
 
+    // Función para formatear hora a 12h con AM/PM
+    const formatTime = (time) => {
+        if (!time) return '';
+        const [hour, minute] = time.split(':');
+        let h = parseInt(hour, 10);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h}:${minute} ${ampm}`;
+    };
+
     // Handle form submission for creating or updating a space
     const handleSaveSpace = async (e) => {
         e.preventDefault();
@@ -130,7 +140,7 @@ const AdminDashboard = () => {
                                         Tipo de Vehículo: {space.vehicle_type}
                                     </p>
                                     <p className="text-sm text-gray-600">
-                                        Horario: {space.start_time} - {space.end_time}
+                                        Horario: {formatTime(space.start_time)} - {formatTime(space.end_time)}
                                     </p>
                                 </div>
                             </div>
@@ -142,6 +152,8 @@ const AdminDashboard = () => {
                                     {new Intl.NumberFormat('es-CO', {
                                         style: 'currency',
                                         currency: 'COP',
+                                        minimumFractionDigits: 0,
+                                        maximumFractionDigits: 0,
                                     }).format(space.price_per_hour)}{' '}
                                     por hora
                                 </span>

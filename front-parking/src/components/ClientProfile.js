@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import SlideLayout from './SlideLayout';
-import Header from './Header';
+import ClientSlideLayout from './ClientSlideLayout';
+import ClientHeader from './ClientHeader';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
@@ -24,6 +24,15 @@ const Profile = () => {
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
+
+    // Estado para vehículos
+    const [vehicles, setVehicles] = useState([
+        // Ejemplo de datos iniciales, reemplaza por datos reales del backend
+        { id: 1, plate: 'ABC 123', type: 'Carro', selected: true },
+        { id: 2, plate: 'ABC 223', type: 'Moto', selected: false },
+    ]);
+    const [newPlate, setNewPlate] = useState('');
+    const [newType, setNewType] = useState('Carro');
 
     const handleSaveChanges = async (e) => {
         e.preventDefault();
@@ -120,8 +129,8 @@ const Profile = () => {
     };
 
     return (
-        <SlideLayout activePage="/profile">
-            <Header title="Mi Perfil" />
+        <ClientSlideLayout activePage="/client/profile">
+            <ClientHeader />
             <div className="px-6 py-4">
                 <div className="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>
@@ -212,6 +221,79 @@ const Profile = () => {
                                 Editar
                             </button>
                         </div>
+
+                        {/* Módulo de Vehículos */}
+                        <div className="mt-10 border rounded-lg p-6 bg-white">
+                            <h2 className="text-xl font-semibold text-gray-900 mb-1">Vehículos</h2>
+                            <p className="text-sm text-gray-500 mb-4">
+                                Seleccione la matrícula de su vehículo predeterminada
+                            </p>
+                            <div className="flex gap-4 mb-6">
+                                {vehicles.map((v) => (
+                                    <button
+                                        key={v.id}
+                                        className={`flex flex-col items-center px-6 py-3 rounded-lg border text-center shadow-sm transition ${
+                                            v.selected
+                                                ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold'
+                                                : 'border-gray-200 bg-white text-gray-500'
+                                        }`}
+                                        onClick={() => {
+                                            setVehicles(vehicles.map(veh => ({
+                                                ...veh,
+                                                selected: veh.id === v.id
+                                            })));
+                                        }}
+                                    >
+                                        <span className="text-base">{v.plate}</span>
+                                        <span className="text-xs mt-1">{v.type}</span>
+                                    </button>
+                                ))}
+                            </div>
+                            <form
+                                className="flex gap-4 items-center"
+                                onSubmit={e => {
+                                    e.preventDefault();
+                                    if (!newPlate) return;
+                                    setVehicles([
+                                        ...vehicles,
+                                        {
+                                            id: Date.now(),
+                                            plate: newPlate,
+                                            type: newType,
+                                            selected: false,
+                                        },
+                                    ]);
+                                    setNewPlate('');
+                                    setNewType('Carro');
+                                }}
+                            >
+                                <input
+                                    type="text"
+                                    placeholder="Añade la matrícula de tu vehículo"
+                                    className="rounded-md border px-3 py-2 text-gray-900 w-64"
+                                    value={newPlate}
+                                    onChange={e => setNewPlate(e.target.value)}
+                                />
+                                <select
+                                    className="rounded-md border px-3 py-2 text-gray-900"
+                                    value={newType}
+                                    onChange={e => setNewType(e.target.value)}
+                                >
+                                    <option value="Carro">Carro</option>
+                                    <option value="Moto">Moto</option>
+                                </select>
+                                <button
+                                    type="submit"
+                                    className="rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700"
+                                    title="Agregar vehículo"
+                                >
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </form>
+                        </div>
+
                     </div>
                 </div>
             </div>
@@ -365,7 +447,7 @@ const Profile = () => {
                     </div>
                 </div>
             )}
-        </SlideLayout>
+        </ClientSlideLayout>
     );
 };
 

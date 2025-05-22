@@ -161,6 +161,32 @@ class UserController extends Controller
     }
 
     /**
+     * Eliminar la foto de perfil del usuario autenticado.
+     */
+    public function deleteProfilePicture()
+    {
+        $user = auth()->user();
+
+        // Solo eliminar si no es la imagen por defecto
+        if ($user->userimg !== 'profile_images/default-profile.png') {
+            $existingImagePath = public_path('storage/' . $user->userimg);
+
+            if (file_exists($existingImagePath)) {
+                unlink($existingImagePath);
+            }
+
+            // Poner la imagen por defecto
+            $user->userimg = 'profile_images/default-profile.png';
+            $user->save();
+        }
+
+        return response()->json([
+            'message' => 'Foto de perfil eliminada y reemplazada por la imagen por defecto.',
+            'userimg' => $user->userimg,
+        ], 200);
+    }
+
+    /**
      * Obtener todos los usuarios.
      */
     public function getUsers()
