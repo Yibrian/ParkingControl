@@ -9,9 +9,9 @@ return new class extends Migration {
     {
         Schema::create('vehicles', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id'); // Cliente dueño del vehículo
+            $table->unsignedBigInteger('user_id'); 
             $table->string('plate')->unique();
-            $table->string('type'); // Carro, Moto, etc.
+            $table->string('type'); 
             $table->boolean('is_default')->default(false);
             $table->timestamps();
 

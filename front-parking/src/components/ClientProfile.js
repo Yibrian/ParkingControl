@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ClientSlideLayout from './ClientSlideLayout';
 import ClientHeader from './ClientHeader';
+import { parkingSpacesApi } from '../services/api';
 import api from '../services/api';
 import { toast } from 'react-toastify';
 
 const Profile = () => {
     const [user, setUser] = useState(() => {
-        // Cargar datos desde localStorage al inicializar
         const storedUser = localStorage.getItem('currentUser');
         return storedUser
             ? JSON.parse(storedUser)
@@ -14,8 +14,8 @@ const Profile = () => {
                   name: '',
                   last_name: '',
                   email: '',
-                  identification: '', 
-                  phone: '', 
+                  identification: '',
+                  phone: '',
                   userimg: '',
               };
     });
@@ -25,14 +25,94 @@ const Profile = () => {
     const [confirmPassword, setConfirmPassword] = useState('');
     const [selectedFile, setSelectedFile] = useState(null);
 
-    // Estado para vehículos
-    const [vehicles, setVehicles] = useState([
-        // Ejemplo de datos iniciales, reemplaza por datos reales del backend
-        { id: 1, plate: 'ABC 123', type: 'Carro', selected: true },
-        { id: 2, plate: 'ABC 223', type: 'Moto', selected: false },
-    ]);
-    const [newPlate, setNewPlate] = useState('');
-    const [newType, setNewType] = useState('Carro');
+    // Vehículos
+    const [vehicles, setVehicles] = useState([]);
+    const [selectedVehicle, setSelectedVehicle] = useState(null);
+    const [isVehicleModalOpen, setIsVehicleModalOpen] = useState(false);
+    const [isEditVehicleModalOpen, setIsEditVehicleModalOpen] = useState(false);
+    const [vehicleForm, setVehicleForm] = useState({ plate: '', type: 'Carro' });
+
+    // Cargar vehículos del usuario
+    useEffect(() => {
+        const fetchVehicles = async () => {
+            try {
+                const response = await parkingSpacesApi.get('/vehicles', {
+                    params: { user_id: user.id },
+                });
+                setVehicles(response.data);
+                // Selecciona el predeterminado
+                const defaultVehicle = response.data.find(v => v.is_default);
+                setSelectedVehicle(defaultVehicle || null);
+            } catch {
+                setVehicles([]);
+            }
+        };
+        if (user.id) fetchVehicles();
+    }, [user.id]);
+
+    // Seleccionar vehículo predeterminado
+    const handleSelectVehicle = async (vehicle) => {
+        try {
+            await parkingSpacesApi.patch(`/vehicles/${vehicle.id}/default`);
+            setVehicles(vehicles.map(v => ({
+                ...v,
+                is_default: v.id === vehicle.id,
+            })));
+            setSelectedVehicle(vehicle);
+            toast.success('Vehículo predeterminado actualizado.');
+        } catch {
+            toast.error('No se pudo actualizar el vehículo predeterminado.');
+        }
+    };
+
+    // Añadir vehículo
+    const handleAddVehicle = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await parkingSpacesApi.post('/vehicles', {
+                user_id: user.id,
+                plate: vehicleForm.plate,
+                type: vehicleForm.type,
+            });
+            setVehicles([...vehicles, response.data]);
+            setIsVehicleModalOpen(false);
+            setVehicleForm({ plate: '', type: 'Carro' });
+            toast.success('Vehículo añadido.');
+        } catch (error) {
+            toast.error('No se pudo añadir el vehículo.');
+        }
+    };
+
+    // Editar vehículo
+    const handleEditVehicle = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await parkingSpacesApi.put(`/vehicles/${selectedVehicle.id}`, {
+                plate: vehicleForm.plate,
+                type: vehicleForm.type,
+            });
+            setVehicles(vehicles.map(v =>
+                v.id === selectedVehicle.id ? response.data : v
+            ));
+            setIsEditVehicleModalOpen(false);
+            toast.success('Vehículo actualizado.');
+        } catch {
+            toast.error('No se pudo editar el vehículo.');
+        }
+    };
+
+    // Eliminar vehículo
+    const handleDeleteVehicle = async () => {
+        try {
+            await parkingSpacesApi.delete(`/vehicles/${selectedVehicle.id}`);
+            setVehicles(vehicles.filter(v => v.id !== selectedVehicle.id));
+            setSelectedVehicle(null);
+            setIsEditVehicleModalOpen(false);
+            toast.success('Vehículo eliminado.');
+        } catch {
+            toast.error('No se pudo eliminar el vehículo.');
+        }
+    };
 
     const handleSaveChanges = async (e) => {
         e.preventDefault();
@@ -222,7 +302,7 @@ const Profile = () => {
                             </button>
                         </div>
 
-                        {/* Módulo de Vehículos */}
+                        {/* Vehículos */}
                         <div className="mt-10 border rounded-lg p-6 bg-white">
                             <h2 className="text-xl font-semibold text-gray-900 mb-1">Vehículos</h2>
                             <p className="text-sm text-gray-500 mb-4">
@@ -233,67 +313,152 @@ const Profile = () => {
                                     <button
                                         key={v.id}
                                         className={`flex flex-col items-center px-6 py-3 rounded-lg border text-center shadow-sm transition ${
-                                            v.selected
+                                            v.is_default
                                                 ? 'border-blue-500 bg-blue-50 text-blue-700 font-bold'
                                                 : 'border-gray-200 bg-white text-gray-500'
                                         }`}
-                                        onClick={() => {
-                                            setVehicles(vehicles.map(veh => ({
-                                                ...veh,
-                                                selected: veh.id === v.id
-                                            })));
-                                        }}
+                                        onClick={() => handleSelectVehicle(v)}
                                     >
                                         <span className="text-base">{v.plate}</span>
                                         <span className="text-xs mt-1">{v.type}</span>
                                     </button>
                                 ))}
-                            </div>
-                            <form
-                                className="flex gap-4 items-center"
-                                onSubmit={e => {
-                                    e.preventDefault();
-                                    if (!newPlate) return;
-                                    setVehicles([
-                                        ...vehicles,
-                                        {
-                                            id: Date.now(),
-                                            plate: newPlate,
-                                            type: newType,
-                                            selected: false,
-                                        },
-                                    ]);
-                                    setNewPlate('');
-                                    setNewType('Carro');
-                                }}
-                            >
-                                <input
-                                    type="text"
-                                    placeholder="Añade la matrícula de tu vehículo"
-                                    className="rounded-md border px-3 py-2 text-gray-900 w-64"
-                                    value={newPlate}
-                                    onChange={e => setNewPlate(e.target.value)}
-                                />
-                                <select
-                                    className="rounded-md border px-3 py-2 text-gray-900"
-                                    value={newType}
-                                    onChange={e => setNewType(e.target.value)}
-                                >
-                                    <option value="Carro">Carro</option>
-                                    <option value="Moto">Moto</option>
-                                </select>
+                                {/* Botón para añadir */}
                                 <button
-                                    type="submit"
-                                    className="rounded-md bg-blue-600 p-2 text-white hover:bg-blue-700"
-                                    title="Agregar vehículo"
+                                    type="button"
+                                    className="rounded-lg border border-blue-500 bg-white text-blue-600 px-4 py-2 font-bold shadow-sm flex items-center justify-center hover:bg-blue-50"
+                                    onClick={() => {
+                                        setVehicleForm({ plate: '', type: 'Carro' });
+                                        setIsVehicleModalOpen(true);
+                                    }}
+                                    title="Añadir vehículo"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
                                 </button>
-                            </form>
+                                {/* Botón para editar */}
+                                {selectedVehicle && (
+                                    <button
+                                        type="button"
+                                        className="rounded-lg border border-yellow-500 bg-white text-yellow-600 px-4 py-2 font-bold shadow-sm flex items-center justify-center hover:bg-yellow-50"
+                                        onClick={() => {
+                                            setVehicleForm({
+                                                plate: selectedVehicle.plate,
+                                                type: selectedVehicle.type,
+                                            });
+                                            setIsEditVehicleModalOpen(true);
+                                        }}
+                                        title="Editar vehículo"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536M9 13h3l8-8a2.828 2.828 0 10-4-4l-8 8v3z" />
+                                        </svg>
+                                    </button>
+                                )}
+                            </div>
                         </div>
 
+                        {/* Modal para añadir vehículo */}
+                        {isVehicleModalOpen && (
+                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                                    <h2 className="text-lg font-bold mb-4">Añadir Vehículo</h2>
+                                    <form onSubmit={handleAddVehicle} className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-900">Placa</label>
+                                            <input
+                                                type="text"
+                                                value={vehicleForm.plate}
+                                                onChange={e => setVehicleForm({ ...vehicleForm, plate: e.target.value })}
+                                                className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-900">Tipo</label>
+                                            <input
+                                                type="text"
+                                                value={vehicleForm.type}
+                                                onChange={e => setVehicleForm({ ...vehicleForm, type: e.target.value })}
+                                                className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex justify-end space-x-4">
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsVehicleModalOpen(false)}
+                                                className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 font-semibold hover:bg-gray-400"
+                                            >
+                                                Cancelar
+                                            </button>
+                                            <button
+                                                type="submit"
+                                                className="rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+                                            >
+                                                Guardar
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
+
+                        {/* Modal para editar vehículo */}
+                        {isEditVehicleModalOpen && (
+                            <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                                <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+                                    <h2 className="text-lg font-bold mb-4">Editar Vehículo</h2>
+                                    <form onSubmit={handleEditVehicle} className="space-y-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-900">Placa</label>
+                                            <input
+                                                type="text"
+                                                value={vehicleForm.plate}
+                                                onChange={e => setVehicleForm({ ...vehicleForm, plate: e.target.value })}
+                                                className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-900">Tipo</label>
+                                            <input
+                                                type="text"
+                                                value={vehicleForm.type}
+                                                onChange={e => setVehicleForm({ ...vehicleForm, type: e.target.value })}
+                                                className="block w-full rounded-md border px-3 py-2 text-gray-900"
+                                                required
+                                            />
+                                        </div>
+                                        <div className="flex justify-between space-x-4">
+                                            <button
+                                                type="button"
+                                                onClick={handleDeleteVehicle}
+                                                className="rounded-md bg-red-600 px-4 py-2 text-white font-semibold hover:bg-red-700"
+                                            >
+                                                Eliminar
+                                            </button>
+                                            <div className="flex space-x-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsEditVehicleModalOpen(false)}
+                                                    className="rounded-md bg-gray-300 px-4 py-2 text-gray-700 font-semibold hover:bg-gray-400"
+                                                >
+                                                    Cancelar
+                                                </button>
+                                                <button
+                                                    type="submit"
+                                                    className="rounded-md bg-blue-600 px-4 py-2 text-white font-semibold hover:bg-blue-700"
+                                                >
+                                                    Guardar Cambios
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -452,3 +617,4 @@ const Profile = () => {
 };
 
 export default Profile;
+
