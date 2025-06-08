@@ -1,9 +1,29 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { parkingSpacesApi } from '../services/api';
 import ParkingControlLogo from '../assets/images/ParkingControl.png';
 
 const ClientSlideLayout = ({ children, activePage }) => {
     const navigate = useNavigate();
+    const [unread, setUnread] = useState(0);
+    const user = JSON.parse(localStorage.getItem('currentUser'));
+
+    useEffect(() => {
+        const fetchUnread = async () => {
+            try {
+                const res = await parkingSpacesApi.get('/notifications/unread-count', {
+                    params: { user_id: user.id }
+                });
+                setUnread(res.data.unread);
+            } catch {
+                setUnread(0);
+            }
+        };
+        fetchUnread();
+        // Opcional: refrescar cada cierto tiempo
+        const interval = setInterval(fetchUnread, 30000);
+        return () => clearInterval(interval);
+    }, [user.id]);
 
     const menuItems = [
         {
@@ -41,9 +61,16 @@ const ClientSlideLayout = ({ children, activePage }) => {
             name: 'Notificaciones',
             icon: (
                 // SVG de campana
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-2">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-                </svg>
+                <div className="relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-2">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    {unread > 0 && (
+                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full px-1">
+                            {unread}
+                        </span>
+                    )}
+                </div>
             ),
             route: '/client/notificaciones',
             activeColor: 'text-red-600',
