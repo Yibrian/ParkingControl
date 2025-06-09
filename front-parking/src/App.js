@@ -15,6 +15,7 @@ import ResetPassword from './components/ResetPassword';
 import ClientProfile from './components/ClientProfile';
 import ClientReservations from './components/ClientReservations';
 import ClientNotifications from './components/ClientNotifications';
+import EmployeeProfile from './components/EmployeeProfile';
 
 function App() {
     return (
@@ -86,6 +87,14 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <ClientNotifications />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/employee/profile"
+                        element={
+                            <PrivateRoute>
+                                <EmployeeProfile />
                             </PrivateRoute>
                         }
                     />

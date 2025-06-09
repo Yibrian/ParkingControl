@@ -25,6 +25,7 @@ const ClientReservations = () => {
     const [showModal, setShowModal] = useState(false);
     const [extraHours, setExtraHours] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [spaces, setSpaces] = useState([]); // Agregado para almacenar los espacios
 
     const user = JSON.parse(localStorage.getItem('currentUser'));
 
@@ -42,6 +43,18 @@ const ClientReservations = () => {
         fetchReservations();
     }, [user.id]);
 
+    useEffect(() => {
+        const fetchSpaces = async () => {
+            try {
+                const res = await parkingSpacesApi.get('/spaces');
+                setSpaces(res.data); // Suponiendo que el endpoint devuelve la lista de espacios
+            } catch {
+                toast.error('No se pudieron cargar los espacios.');
+            }
+        };
+        fetchSpaces();
+    }, []);
+
     const handleAddHoursClick = (reservation) => {
         setSelectedReservation(reservation);
         setExtraHours(1);
@@ -52,24 +65,35 @@ const ClientReservations = () => {
         setLoading(true);
         try {
             // Calcula el nuevo end_time y el monto a pagar
-            const space = selectedReservation.space || selectedReservation; // Ajusta según tu estructura
-            const pricePerHour = space.price_per_hour;
-            const amount = pricePerHour * extraHours;
+            const space = selectedReservation.space
+                ? selectedReservation.space
+                : spaces.find(s => s.id === selectedReservation.space_id);
 
-            // 1. Actualiza la reserva (puedes crear un endpoint para esto)
+            const pricePerHour = space?.price_per_hour;
+            if (!pricePerHour) {
+                toast.error('No se pudo obtener el precio del espacio.');
+                setLoading(false);
+                setShowModal(false);
+                return;
+            }
+
+            
+
+            
             await parkingSpacesApi.put(`/reservations/${selectedReservation.id}/extend`, {
                 extra_hours: extraHours
             });
 
-            // 2. Crea sesión de pago en Stripe
+           
             const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
                 reservation_id: selectedReservation.id,
-                amount,
+                amount: pricePerHour * extraHours, // Usa el monto calculado, no solo price_per_hour
             });
 
-            // 3. Redirige a Stripe
+           
             window.location.href = stripeRes.data.url;
         } catch (error) {
+            console.error(error);
             toast.error('No se pudo procesar la extensión.');
         } finally {
             setLoading(false);

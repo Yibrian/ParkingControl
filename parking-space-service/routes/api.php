@@ -17,8 +17,8 @@ Route::patch('/vehicles/{id}/default', [VehicleController::class, 'setDefault'])
 
 Route::post('/reservations', [ReservationController::class, 'store']);
 Route::put('/reservations/{id}/extend', [ReservationController::class, 'extend']);
-Route::put('/reservations/{id}/finish', [\App\Http\Controllers\ReservationController::class, 'finish']);
-Route::put('/reservations/{id}/cancel', [\App\Http\Controllers\ReservationController::class, 'cancel']);
+Route::put('/reservations/{id}/finish', [ReservationController::class, 'finish']);
+Route::put('/reservations/{id}/cancel', [ReservationController::class, 'cancel']);
 Route::get('/reservations', [ReservationController::class, 'index']);
 Route::post('/stripe/checkout', [StripeController::class, 'createCheckoutSession']);
 Route::post('/stripe/webhook', [StripeWebhookController::class, 'handle']);

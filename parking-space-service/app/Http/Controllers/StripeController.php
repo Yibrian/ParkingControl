@@ -15,6 +15,8 @@ class StripeController extends Controller
             'amount' => 'required|numeric|min:1',
         ]);
 
+        \Log::info('Stripe checkout', $validated);
+
         Stripe::setApiKey(env('STRIPE_SECRET'));
 
         $session = StripeSession::create([

@@ -54,6 +54,35 @@ const ClientDashboard = () => {
     // Volver al dashboard desde la vista de reserva
     const handleBack = () => setSelectedSpace(null);
 
+    const handleSubmitReservation = async (reservationData) => {
+        const { selectedVehicle, startDate, startTime, endDate, endTime, description } = reservationData;
+        const user = JSON.parse(localStorage.getItem('currentUser'));
+
+        try {
+            // 1. Crear la reserva
+            const reservationRes = await parkingSpacesApi.post('/reservations', {
+                user_id: user.id,
+                space_id: selectedSpace.id,
+                vehicle_id: selectedVehicle,
+                start_date: startDate,
+                start_time: startTime,
+                end_date: endDate,
+                end_time: endTime,
+                description,
+            });
+            const reservation = reservationRes.data;
+
+            // 2. Crear sesión de pago Stripe
+            const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
+                reservation_id: reservation.id,
+                amount: selectedSpace.price_per_hour,
+            });
+            window.location.href = stripeRes.data.url;
+        } catch (error) {
+            // Manejo de errores
+        }
+    };
+
     return (
         <ClientSlideLayout activePage="/client">
             <ClientHeader />
@@ -64,7 +93,7 @@ const ClientDashboard = () => {
                         space={selectedSpace}
                         vehicles={vehicles}
                         onBack={handleBack}
-                        onSubmit={e => { e.preventDefault(); /* lógica futura */ }}
+                        onSubmit={handleSubmitReservation}
                     />
                 ) : (
                     <div className="space-y-6">

@@ -52,7 +52,7 @@ class ReservationController extends Controller
         $space->available_spaces = $space->total_spaces - ($activeReservations + 1);
         $space->save();
 
-        return response()->json($reservation, 201);
+        return response()->json($reservation->load('space'), 201);
     }
 
     public function extend(Request $request, $id)
@@ -64,21 +64,17 @@ class ReservationController extends Controller
         $reservation = Reservation::findOrFail($id);
 
         // Solo permitir extensión si la reserva está confirmada o pendiente
-        if (!in_array($reservation->status, ['confirmada', 'pendiente'])) {
+        if (!in_array($reservation->status, ['confirmada'])) {
             return response()->json(['error' => 'Solo puedes extender reservas activas.'], 400);
         }
 
-        // Obtener el espacio para saber el horario máximo permitido (opcional)
-        $space = Space::findOrFail($reservation->space_id);
+  
 
         // Calcular el nuevo end_time sumando las horas extra
         $currentEndDateTime = new \DateTime("{$reservation->end_date} {$reservation->end_time}");
         $currentEndDateTime->modify("+{$validated['extra_hours']} hour");
 
-        // Opcional: Validar que no se pase del horario del espacio
-        if ($currentEndDateTime->format('H:i') > $space->end_time) {
-             return response()->json(['error' => 'No puedes extender más allá del horario permitido.'], 400);
-         }
+       
 
         $reservation->end_date = $currentEndDateTime->format('Y-m-d');
         $reservation->end_time = $currentEndDateTime->format('H:i:s');
