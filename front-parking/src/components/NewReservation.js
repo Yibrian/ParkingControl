@@ -16,8 +16,8 @@ const NewReservation = ({ space, vehicles, onBack }) => {
         e.preventDefault();
         setLoading(true);
         try {
-            // 1. Crear la reserva
-            const reservationRes = await parkingSpacesApi.post('/reservations', {
+            
+            const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
                 user_id: user.id,
                 space_id: space.id,
                 vehicle_id: selectedVehicle,
@@ -26,17 +26,11 @@ const NewReservation = ({ space, vehicles, onBack }) => {
                 end_date: endDate,
                 end_time: endTime,
                 description,
-            });
-            const reservation = reservationRes.data;
-
-            // 2. Crear sesión de pago Stripe
-            const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
-                reservation_id: reservation.id,
                 amount: space.price_per_hour,
             });
             window.location.href = stripeRes.data.url;
         } catch (error) {
-            toast.error('No se pudo crear la reserva o iniciar el pago.');
+            toast.error('No se pudo iniciar el pago.');
         } finally {
             setLoading(false);
         }

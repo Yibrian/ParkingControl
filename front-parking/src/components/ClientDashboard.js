@@ -137,8 +137,9 @@ const ClientDashboard = () => {
                                         </div>
                                     </div>
                                     <button
-                                        className="bg-green-600 text-white px-6 py-2 rounded-md font-semibold flex items-center hover:bg-green-700"
+                                        className={`bg-green-600 text-white px-6 py-2 rounded-md font-semibold flex items-center hover:bg-green-700 ${space.available_spaces <= 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                         onClick={() => setSelectedSpace(space)}
+                                        disabled={space.available_spaces <= 0}
                                     >
                                         Reservar
                                     </button>

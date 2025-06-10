@@ -23,6 +23,20 @@ class ReservationController extends Controller
             'description' => 'nullable|string',
         ]);
 
+        // Validación: No permitir reservar días anteriores al actual
+        $today = date('Y-m-d');
+        if ($validated['start_date'] < $today) {
+            return response()->json(['error' => 'No puedes reservar en fechas anteriores a hoy.'], 400);
+        }
+
+        // Validación: Si es hoy, no permitir horas anteriores a la actual
+        if ($validated['start_date'] === $today) {
+            $currentTime = date('H:i');
+            if ($validated['start_time'] < $currentTime) {
+                return response()->json(['error' => 'No puedes reservar en horas anteriores a la actual.'], 400);
+            }
+        }
+
         // Verifica si hay espacios disponibles
         $space = Space::findOrFail($validated['space_id']);
         $activeReservations = Reservation::where('space_id', $space->id)

@@ -338,14 +338,16 @@ const Profile = () => {
                                     </svg>
                                 </button>
                                 {/* Botón para editar */}
-                                {selectedVehicle && (
+                                {vehicles.length > 0 && (
                                     <button
                                         type="button"
                                         className="rounded-lg border border-yellow-500 bg-white text-yellow-600 px-4 py-2 font-bold shadow-sm flex items-center justify-center hover:bg-yellow-50"
                                         onClick={() => {
+                                            // Si hay un vehículo seleccionado, edítalo; si no, edita el primero
+                                            const vehicleToEdit = selectedVehicle || vehicles[0];
                                             setVehicleForm({
-                                                plate: selectedVehicle.plate,
-                                                type: selectedVehicle.type,
+                                                plate: vehicleToEdit.plate,
+                                                type: vehicleToEdit.type,
                                             });
                                             setIsEditVehicleModalOpen(true);
                                         }}
