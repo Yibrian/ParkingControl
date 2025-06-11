@@ -19,13 +19,23 @@ function formatDate(date) {
     return `${day}/${month}/${year}`;
 }
 
+// Calcular total pagado por una reserva
+function calcularTotalPagado(reserva) {
+    if (!reserva.space || !reserva.start_date || !reserva.start_time || !reserva.end_date || !reserva.end_time) return 0;
+    const start = new Date(`${reserva.start_date}T${reserva.start_time}`);
+    const end = new Date(`${reserva.end_date}T${reserva.end_time}`);
+    const diffMs = end - start;
+    const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    return diffHours * reserva.space.price_per_hour;
+}
+
 const ClientReservations = () => {
     const [reservations, setReservations] = useState([]);
     const [selectedReservation, setSelectedReservation] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [extraHours, setExtraHours] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [spaces, setSpaces] = useState([]); 
+    const [spaces, setSpaces] = useState([]);
 
     const user = JSON.parse(localStorage.getItem('currentUser'));
 
@@ -47,7 +57,7 @@ const ClientReservations = () => {
         const fetchSpaces = async () => {
             try {
                 const res = await parkingSpacesApi.get('/spaces');
-                setSpaces(res.data); 
+                setSpaces(res.data);
             } catch {
                 toast.error('No se pudieron cargar los espacios.');
             }
@@ -104,11 +114,25 @@ const ClientReservations = () => {
         }
     };
 
+    // Calcular total pagado acumulado
+    const totalPagadoAcumulado = reservations.reduce(
+        (acc, reserva) => acc + calcularTotalPagado(reserva),
+        0
+    );
+
     return (
         <ClientSlideLayout activePage="/client/reservas">
             <ClientHeader />
             <div className="px-8 py-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">Reservas</h2>
+                <h2 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-6">
+                    Reservas
+                    <span className="text-base font-normal text-gray-700">
+                        Total pagado acumulado:{' '}
+                        <span className="font-bold">
+                            {Number(totalPagadoAcumulado).toLocaleString('es-CO', { maximumFractionDigits: 0 })}
+                        </span>
+                    </span>
+                </h2>
                 <div className="space-y-4">
                     {reservations.map(res => (
                         <div key={res.id} className="bg-white rounded-lg shadow p-6 flex justify-between items-center">
@@ -123,6 +147,10 @@ const ClientReservations = () => {
                                 </div>
                                 <div className="text-sm text-gray-600">
                                     Estado: <span className="font-semibold">{res.status}</span>
+                                </div>
+                                <div className="text-sm text-gray-900 font-bold mt-2">
+                                    Total pagado:{' '}
+                                    {Number(calcularTotalPagado(res)).toLocaleString('es-CO', { maximumFractionDigits: 0 })} COP
                                 </div>
                             </div>
                             <div className="flex items-center gap-x-4">
