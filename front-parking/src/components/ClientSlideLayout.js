@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { parkingSpacesApi } from '../services/api';
 import ParkingControlLogo from '../assets/images/ParkingControl.png';
+import ClientHeader from './ClientHeader'; // Asegúrate de importar el encabezado si lo usas
 
 const ClientSlideLayout = ({ children, activePage }) => {
     const navigate = useNavigate();
@@ -20,7 +21,7 @@ const ClientSlideLayout = ({ children, activePage }) => {
             }
         };
         fetchUnread();
-        // Opcional: refrescar cada cierto tiempo
+        
         const interval = setInterval(fetchUnread, 30000);
         return () => clearInterval(interval);
     }, [user.id]);
@@ -29,7 +30,7 @@ const ClientSlideLayout = ({ children, activePage }) => {
         {
             name: 'Espacios del parqueadero',
             icon: (
-                // Mismo SVG que admin
+                
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -81,7 +82,7 @@ const ClientSlideLayout = ({ children, activePage }) => {
     return (
         <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md">
+            <aside className="w-64 bg-white shadow-md fixed top-0 left-0 h-screen z-50">
                 <div className="p-6">
                     <img
                         src={ParkingControlLogo}
@@ -110,7 +111,14 @@ const ClientSlideLayout = ({ children, activePage }) => {
                 </nav>
             </aside>
             {/* Main Content */}
-            <main className="flex-1 flex flex-col">{children}</main>
+            <div className="flex-1 flex flex-col ml-64">
+                <header className="fixed top-0 left-64 right-0 z-40 bg-white shadow-md">
+                    <ClientHeader />
+                </header>
+                <main className="flex-1 flex flex-col pt-20 px-8 overflow-y-auto h-screen">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 };

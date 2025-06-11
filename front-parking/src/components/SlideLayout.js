@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ParkingControlLogo from '../assets/images/ParkingControl.png';
+import Header from './Header';
 
 const SlideLayout = ({ children, activePage }) => {
     const navigate = useNavigate();
@@ -43,15 +44,15 @@ const SlideLayout = ({ children, activePage }) => {
                 </svg>
             ),
             route: '/admin/users',
-            activeColor: 'text-red-600', // Color rojo para la página activa
-            inactiveColor: 'text-gray-600', // Color gris para la página inactiva
+            activeColor: 'text-red-600', 
+            inactiveColor: 'text-gray-600', 
         },
     ];
 
     return (
         <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md">
+            <aside className="w-64 bg-white shadow-md fixed top-0 left-0 h-screen z-50">
                 <div className="p-6">
                     <img
                         src={ParkingControlLogo}
@@ -79,9 +80,15 @@ const SlideLayout = ({ children, activePage }) => {
                     </ul>
                 </nav>
             </aside>
-
             {/* Main Content */}
-            <main className="flex-1 flex flex-col">{children}</main>
+            <div className="flex-1 flex flex-col ml-64">
+                <header className="fixed top-0 left-64 right-0 z-40 bg-white shadow-md">
+                    <Header />
+                </header>
+                <main className="flex-1 flex flex-col pt-20 px-8 overflow-y-auto h-screen">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 };

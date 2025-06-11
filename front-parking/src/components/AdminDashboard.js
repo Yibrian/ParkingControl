@@ -182,8 +182,8 @@ const AdminDashboard = () => {
                 </div>
 
                 {isModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                        <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                             <h2 className="text-lg font-bold mb-4">
                                 {currentSpace.id ? 'Editar Espacio' : 'Añadir Espacio'}
                             </h2>

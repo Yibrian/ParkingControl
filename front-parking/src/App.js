@@ -17,6 +17,7 @@ import ClientReservations from './components/ClientReservations';
 import ClientNotifications from './components/ClientNotifications';
 import EmployeeProfile from './components/EmployeeProfile';
 import Salida from './components/Salida';
+import Historial from './components/Historial';
 
 function App() {
     return (
@@ -104,6 +105,14 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <Salida />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/employee/historial"
+                        element={
+                            <PrivateRoute>
+                                <Historial />
                             </PrivateRoute>
                         }
                     />

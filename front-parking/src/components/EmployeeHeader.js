@@ -34,7 +34,7 @@ const EmployeeHeader = ({ title }) => {
     };
 
     return (
-        <header className="flex items-center justify-between bg-white shadow-md px-6 py-4">
+        <header className="flex items-center justify-between bg-white shadow-md px-6 py-4 fixed top-0 left-0 right-0 z-40">
             <div className="text-xl font-bold text-gray-900">{title || ''}</div>
             <div className="relative">
                 <button

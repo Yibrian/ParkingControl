@@ -103,7 +103,14 @@ const Salida = () => {
                     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
                         <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                             <h2 className="text-lg font-bold mb-4">Total a pagar</h2>
-                            <div className="mb-4 text-xl font-bold">{precio} pesos</div>
+                            <div className="mb-4 text-xl font-bold">
+                                {new Intl.NumberFormat('es-CO', {
+                                    style: 'currency',
+                                    currency: 'COP',
+                                    minimumFractionDigits: 0,
+                                    maximumFractionDigits: 0,
+                                }).format(precio)}
+                            </div>
                             <div className="flex justify-end space-x-4">
                                 <button
                                     className="bg-gray-300 px-4 py-2 rounded"

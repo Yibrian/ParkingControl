@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import ParkingControlLogo from '../assets/images/ParkingControl.png';
+import EmployeeHeader from './EmployeeHeader'; // Asegúrate de que la ruta sea correcta
 
 const EmployeeSlideLayout = ({ children, activePage }) => {
     const navigate = useNavigate();
@@ -28,12 +29,23 @@ const EmployeeSlideLayout = ({ children, activePage }) => {
             activeColor: 'text-red-600',
             inactiveColor: 'text-gray-600',
         },
+        {
+            name: 'Historial',
+            icon: (
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            ),
+            route: '/employee/historial',
+            activeColor: 'text-red-600',
+            inactiveColor: 'text-gray-600',
+        },
     ];
 
     return (
         <div className="flex min-h-screen bg-gray-50">
             {/* Sidebar */}
-            <aside className="w-64 bg-white shadow-md">
+            <aside className="w-64 bg-white shadow-md fixed top-0 left-0 h-screen z-50">
                 <div className="p-6">
                     <img src={ParkingControlLogo} alt="Parking Control Logo" className="h-30 mx-auto" />
                 </div>
@@ -58,7 +70,14 @@ const EmployeeSlideLayout = ({ children, activePage }) => {
                 </nav>
             </aside>
             {/* Main Content */}
-            <main className="flex-1 flex flex-col">{children}</main>
+            <div className="flex-1 flex flex-col ml-64">
+                <header className="fixed top-0 left-64 right-0 z-40 bg-white shadow-md">
+                    <EmployeeHeader />
+                </header>
+                <main className="flex-1 flex flex-col pt-20 px-8 overflow-y-auto h-screen">
+                    {children}
+                </main>
+            </div>
         </div>
     );
 };

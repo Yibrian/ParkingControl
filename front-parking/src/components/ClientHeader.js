@@ -22,7 +22,7 @@ const ClientHeader = ({ title }) => {
                 const response = await api.get('/profile');
                 setCurrentUser(response.data);
             } catch (error) {
-                // Silenciar error si no hay sesión
+               
             }
         };
         fetchUser();
@@ -36,13 +36,8 @@ const ClientHeader = ({ title }) => {
     };
 
     return (
-        <header className="flex items-center justify-between bg-white shadow-md px-6 py-4">
-           
-            {title && (
-                <h1 className="text-lg font-bold text-gray-900">{title}</h1>
-            )}
-          
-            <div className="flex-1"></div>
+        <header className="flex items-center justify-end bg-white shadow-md px-6 py-4 fixed top-0 left-0 right-0 z-40">
+            {/* Título eliminado, avatar y menú siguen visibles */}
             <div className="relative">
                 <button
                     className="flex items-center space-x-2"
@@ -54,7 +49,7 @@ const ClientHeader = ({ title }) => {
                         className="w-10 h-10 rounded-full"
                     />
                     <div className="text-left">
-                        <p className="text-sm font-medium text-gray-900">{currentUser.name || 'Usuario'}</p>
+                        <p className="text-sm font-medium text-gray-900">{currentUser.name || 'Empleado'}</p>
                         <p className="text-xs text-gray-500">{currentUser.email || 'email@example.com'}</p>
                     </div>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-5 w-5">

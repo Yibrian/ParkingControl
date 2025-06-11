@@ -18,6 +18,8 @@ const AdminUsers = () => {
         phone: '',
         rol: 'ADMINISTRADOR',
     });
+    const [filterName, setFilterName] = useState('');
+    const [filterRol, setFilterRol] = useState('');
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -183,79 +185,108 @@ const AdminUsers = () => {
                         Añadir
                     </button>
                 </div>
+
+                {/* Filtros */}
+                <div className="flex gap-4 mb-4">
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre"
+                        value={filterName}
+                        onChange={e => setFilterName(e.target.value)}
+                        className="rounded-md border px-3 py-2 text-gray-900"
+                    />
+                    <select
+                        value={filterRol}
+                        onChange={e => setFilterRol(e.target.value)}
+                        className="rounded-md border px-3 py-2 text-gray-900"
+                    >
+                        <option value="">Todos los roles</option>
+                        <option value="ADMINISTRADOR">Administrador</option>
+                        <option value="EMPLEADO">Empleado</option>
+                        <option value="CLIENTE">Cliente</option>
+                    </select>
+                </div>
+
                 <div className="space-y-4">
-                    {users.map((user) => (
-                        <div
-                            key={user.id}
-                            className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg"
-                        >
-                            {/* Información del usuario */}
-                            <div>
-                                <p className="text-lg font-semibold text-gray-900">
-                                    {user.name} {user.last_name}
-                                </p>
-                                <p className="text-sm text-gray-600">{user.email}</p>
-                                <p className="text-sm text-gray-600">{user.phone}</p>
+                    {users
+                        .filter(user =>
+                            (!filterName ||
+                                `${user.name} ${user.last_name}`.toLowerCase().includes(filterName.toLowerCase())
+                            ) &&
+                            (!filterRol || user.rol === filterRol)
+                        )
+                        .map((user) => (
+                            <div
+                                key={user.id}
+                                className="flex items-center justify-between p-4 bg-white shadow-md rounded-lg"
+                            >
+                                {/* Información del usuario */}
+                                <div>
+                                    <p className="text-lg font-semibold text-gray-900">
+                                        {user.name} {user.last_name}
+                                    </p>
+                                    <p className="text-sm text-gray-600">{user.email}</p>
+                                    <p className="text-sm text-gray-600">{user.phone}</p>
+                                </div>
+
+                                {/* Contenedor de estado, rol y botones */}
+                                <div className="flex items-center space-x-6">
+                                    {/* Indicador de estado */}
+                                    <div className="flex flex-col items-center w-16">
+                                        <span
+                                            className={`h-4 w-4 rounded-full ${
+                                                user.active ? 'bg-green-500' : 'bg-red-500'
+                                            }`}
+                                            title={user.active ? 'Activo' : 'Desactivado'}
+                                        ></span>
+                                    </div>
+
+                                    {/* Rol del usuario */}
+                                    <div className="flex flex-col items-center w-32">
+                                        <span
+                                            className={`px-2 py-1 text-sm rounded-full ${
+                                                user.rol === 'ADMINISTRADOR'
+                                                    ? 'bg-orange-100 text-orange-600'
+                                                    : user.rol === 'CLIENTE'
+                                                    ? 'bg-green-100 text-green-600'
+                                                    : 'bg-blue-100 text-blue-600'
+                                            }`}
+                                        >
+                                            {user.rol}
+                                        </span>
+                                    </div>
+
+                                    {/* Botón de activar/desactivar */}
+                                    <div className="flex flex-col items-center w-24">
+                                        <button
+                                            onClick={() => handleToggleActive(user.id)}
+                                            className={`btn ${
+                                                user.active ? 'btn-disable' : 'btn-save'
+                                            }`}
+                                        >
+                                            {user.active ? 'Desactivar' : 'Activar'}
+                                        </button>
+                                    </div>
+
+                                    {/* Botón de editar */}
+                                    <div className="flex flex-col items-center w-24">
+                                        <button
+                                            onClick={() => handleEditUser(user)}
+                                            className="btn btn-edit"
+                                        >
+                                            Editar
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-
-                            {/* Contenedor de estado, rol y botones */}
-                            <div className="flex items-center space-x-6">
-                                {/* Indicador de estado */}
-                                <div className="flex flex-col items-center w-16">
-                                    <span
-                                        className={`h-4 w-4 rounded-full ${
-                                            user.active ? 'bg-green-500' : 'bg-red-500'
-                                        }`}
-                                        title={user.active ? 'Activo' : 'Desactivado'}
-                                    ></span>
-                                </div>
-
-                                {/* Rol del usuario */}
-                                <div className="flex flex-col items-center w-32">
-                                    <span
-                                        className={`px-2 py-1 text-sm rounded-full ${
-                                            user.rol === 'ADMINISTRADOR'
-                                                ? 'bg-orange-100 text-orange-600'
-                                                : user.rol === 'CLIENTE'
-                                                ? 'bg-green-100 text-green-600'
-                                                : 'bg-blue-100 text-blue-600'
-                                        }`}
-                                    >
-                                        {user.rol}
-                                    </span>
-                                </div>
-
-                                {/* Botón de activar/desactivar */}
-                                <div className="flex flex-col items-center w-24">
-                                    <button
-                                        onClick={() => handleToggleActive(user.id)}
-                                        className={`btn ${
-                                            user.active ? 'btn-disable' : 'btn-save'
-                                        }`}
-                                    >
-                                        {user.active ? 'Desactivar' : 'Activar'}
-                                    </button>
-                                </div>
-
-                                {/* Botón de editar */}
-                                <div className="flex flex-col items-center w-24">
-                                    <button
-                                        onClick={() => handleEditUser(user)}
-                                        className="btn btn-edit"
-                                    >
-                                        Editar
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
+                        ))}
                 </div>
             </div>
 
             {/* Modal para añadir usuario */}
             {isAddModalOpen && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                         <h2 className="text-lg font-bold mb-4">Añadir Usuario</h2>
                         <form onSubmit={handleAddUser} className="space-y-4">
                             <div>
@@ -388,8 +419,8 @@ const AdminUsers = () => {
 
             {/* Modal para editar usuario */}
             {isEditModalOpen && currentUser && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-lg">
+                <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
                         <h2 className="text-lg font-bold mb-4">Editar Usuario</h2>
                         <form onSubmit={handleSaveChanges} className="space-y-4">
                             <div>

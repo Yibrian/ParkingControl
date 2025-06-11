@@ -49,7 +49,7 @@ class EmployeeReservationController extends Controller
         $reservation->status = 'finalizada';
         $reservation->save();
 
-        // Liberar espacio
+        
         $space = $reservation->space;
         if ($space) {
             $space->available_spaces = min($space->available_spaces + 1, $space->total_spaces);
