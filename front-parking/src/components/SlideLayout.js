@@ -47,6 +47,18 @@ const SlideLayout = ({ children, activePage }) => {
             activeColor: 'text-red-600', 
             inactiveColor: 'text-gray-600', 
         },
+        {
+            name: 'Analíticas',
+            icon: (
+                // SVG de gráfico/estadísticas
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 17v-6m4 6V7m-8 10v-2m16 2V5a2 2 0 00-2-2H6a2 2 0 00-2 2v14a2 2 0 002 2h12a2 2 0 002-2z" />
+                </svg>
+            ),
+            route: '/admin/analytics',
+            activeColor: 'text-blue-600',
+            inactiveColor: 'text-gray-600',
+        },
     ];
 
     return (

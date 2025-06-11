@@ -12,6 +12,9 @@ export const parkingSpacesApi = axios.create({
     baseURL: 'http://localhost:8082/api', // URL del servicio parking-space-service
 });
 
+export const analyticsApi = axios.create({
+    baseURL: 'http://localhost:5001/api/analytics', // URL  del servicio analytics-service
+});
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem('token');

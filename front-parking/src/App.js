@@ -18,6 +18,7 @@ import ClientNotifications from './components/ClientNotifications';
 import EmployeeProfile from './components/EmployeeProfile';
 import Salida from './components/Salida';
 import Historial from './components/Historial';
+import Analytics from './components/analytics'; 
 
 function App() {
     return (
@@ -41,6 +42,14 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <AdminUsers />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/admin/analytics"
+                        element={
+                            <PrivateRoute>
+                                <Analytics />
                             </PrivateRoute>
                         }
                     />
