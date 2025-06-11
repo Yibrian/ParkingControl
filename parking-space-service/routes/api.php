@@ -5,6 +5,7 @@ use App\Http\Controllers\ReservationController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\EmployeeReservationController;
 
 Route::apiResource('spaces', SpaceController::class);
 Route::patch('spaces/{id}/toggle-active', [SpaceController::class, 'toggleActive']);
@@ -26,3 +27,6 @@ Route::get('/notifications', [NotificationController::class, 'index']);
 Route::get('/notifications/unread-count', [NotificationController::class, 'unreadCount']);
 Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead']);
 Route::delete('/notifications/{id}', [NotificationController::class, 'destroy']);
+Route::post('/employee-reservations', [EmployeeReservationController::class, 'store']);
+Route::put('/employee-reservations/{id}/finish', [EmployeeReservationController::class, 'finish']);
+Route::get('/employee-reservations', [EmployeeReservationController::class, 'index']);

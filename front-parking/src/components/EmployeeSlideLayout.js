@@ -18,13 +18,13 @@ const EmployeeSlideLayout = ({ children, activePage }) => {
             inactiveColor: 'text-gray-600',
         },
         {
-            name: 'Salida',
+            name: 'Salida de vehículos',
             icon: (
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="h-6 w-6 mr-2">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 11-6 0v-1m6 0H9" />
                 </svg>
             ),
-            route: '/logout',
+            route: '/employee/salida',
             activeColor: 'text-red-600',
             inactiveColor: 'text-gray-600',
         },

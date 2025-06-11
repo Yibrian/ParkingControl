@@ -23,30 +23,6 @@ class ReservationController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        // Validación: No permitir reservar días anteriores al actual
-        $today = date('Y-m-d');
-        if ($validated['start_date'] < $today) {
-            return response()->json(['error' => 'No puedes reservar en fechas anteriores a hoy.'], 400);
-        }
-
-        // Validación: Si es hoy, no permitir horas anteriores a la actual
-        if ($validated['start_date'] === $today) {
-            $currentTime = date('H:i');
-            if ($validated['start_time'] < $currentTime) {
-                return response()->json(['error' => 'No puedes reservar en horas anteriores a la actual.'], 400);
-            }
-        }
-
-        // Verifica si hay espacios disponibles
-        $space = Space::findOrFail($validated['space_id']);
-        $activeReservations = Reservation::where('space_id', $space->id)
-            ->where('status', '!=', 'cancelada')
-            ->count();
-
-        if ($activeReservations >= $space->total_spaces) {
-            return response()->json(['error' => 'No hay espacios disponibles en este parqueadero.'], 400);
-        }
-
         // Crea la reserva con estado pendiente
         $reservation = Reservation::create([
             ...$validated,
@@ -71,28 +47,35 @@ class ReservationController extends Controller
 
     public function extend(Request $request, $id)
     {
+        \Log::info('Extend llamado', ['reservation_id' => $id, 'request' => $request->all()]);
+
         $validated = $request->validate([
             'extra_hours' => 'required|integer|min:1',
         ]);
 
         $reservation = Reservation::findOrFail($id);
 
-        // Solo permitir extensión si la reserva está confirmada o pendiente
-        if (!in_array($reservation->status, ['confirmada'])) {
-            return response()->json(['error' => 'Solo puedes extender reservas activas.'], 400);
-        }
-
-  
-
-        // Calcular el nuevo end_time sumando las horas extra
         $currentEndDateTime = new \DateTime("{$reservation->end_date} {$reservation->end_time}");
         $currentEndDateTime->modify("+{$validated['extra_hours']} hour");
-
-       
 
         $reservation->end_date = $currentEndDateTime->format('Y-m-d');
         $reservation->end_time = $currentEndDateTime->format('H:i:s');
         $reservation->save();
+
+        
+        Notification::create([
+            'user_id' => $reservation->user_id,
+            'title' => 'Reserva extendida',
+            'message' => 'Tu reserva ha sido extendida hasta el ' .
+                date('d/m/Y', strtotime($reservation->end_date)) . ' a las ' .
+                date('h:i A', strtotime($reservation->end_time)) . '.',
+        ]);
+
+        \Log::info('Reserva extendida', [
+            'reservation_id' => $reservation->id,
+            'nueva_fecha_fin' => $reservation->end_date,
+            'nueva_hora_fin' => $reservation->end_time
+        ]);
 
         return response()->json($reservation, 200);
     }
@@ -104,8 +87,6 @@ class ReservationController extends Controller
         if ($request->has('user_id')) {
             $query->where('user_id', $request->user_id);
         }
-
-        
 
         $reservations = $query->with('space')->orderBy('start_date', 'desc')->get();
 
@@ -123,7 +104,6 @@ class ReservationController extends Controller
         $reservation->status = 'finalizada';
         $reservation->save();
 
-        // Libera el espacio
         $space = Space::findOrFail($reservation->space_id);
         $space->available_spaces = min($space->available_spaces + 1, $space->total_spaces);
         $space->save();
@@ -142,12 +122,10 @@ class ReservationController extends Controller
         $reservation->status = 'cancelada';
         $reservation->save();
 
-        // Libera el espacio
         $space = Space::findOrFail($reservation->space_id);
         $space->available_spaces = min($space->available_spaces + 1, $space->total_spaces);
         $space->save();
 
-        // Notificación de reserva cancelada
         Notification::create([
             'user_id' => $reservation->user_id,
             'title' => 'Reserva cancelada',

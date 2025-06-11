@@ -7,7 +7,7 @@ const Header = ({ title }) => {
     const [currentUser, setCurrentUser] = useState({
         name: 'Usuario',
         email: 'email@example.com',
-        userimg: 'profile_images/default-profile.png', // Imagen predeterminada
+        userimg: 'profile_images/default-profile.png', 
     });
     const navigate = useNavigate();
 
@@ -21,7 +21,7 @@ const Header = ({ title }) => {
     useEffect(() => {
         const fetchUser = async () => {
             try {
-                const response = await api.get('/profile'); // Llama al endpoint para obtener el perfil
+                const response = await api.get('/profile'); 
                 setCurrentUser(response.data);
             } catch (error) {
                 console.error('Error fetching user profile:', error);
@@ -46,16 +46,7 @@ const Header = ({ title }) => {
     };
 
     return (
-        <header className="flex items-center justify-between bg-white shadow-md px-6 py-4">
-            {/* Left Section: Title and Search Bar */}
-            <div className="flex items-center space-x-4 w-full">
-                <input
-                    type="text"
-                    placeholder="Buscar"
-                    className="w-full max-w-2xl px-6 py-3 border rounded-md outline-none focus:ring-2 focus:ring-primary"
-                />
-            </div>
-
+        <header className="flex items-center justify-end bg-white shadow-md px-6 py-4">
             {/* Right Section: User Dropdown */}
             <div className="relative">
                 <button

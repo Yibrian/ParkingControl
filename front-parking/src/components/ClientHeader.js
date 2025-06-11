@@ -37,13 +37,12 @@ const ClientHeader = ({ title }) => {
 
     return (
         <header className="flex items-center justify-between bg-white shadow-md px-6 py-4">
-            <div className="flex items-center space-x-4 w-full">
-                <input
-                    type="text"
-                    placeholder="Buscar"
-                    className="w-full max-w-2xl px-6 py-3 border rounded-md outline-none focus:ring-2 focus:ring-primary"
-                />
-            </div>
+           
+            {title && (
+                <h1 className="text-lg font-bold text-gray-900">{title}</h1>
+            )}
+          
+            <div className="flex-1"></div>
             <div className="relative">
                 <button
                     className="flex items-center space-x-2"

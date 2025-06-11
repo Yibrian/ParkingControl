@@ -56,6 +56,19 @@ const ClientNotifications = () => {
         return d.toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
     }
 
+    function getNotificationIcon(title) {
+        if (title === 'Reserva confirmada') {
+            
+            return <span className="mr-2 text-green-600">✔️</span>;
+        }
+        if (title === 'Reserva cancelada') {
+            
+            return <span className="mr-2 text-red-600">❌</span>;
+        }
+        
+        return <span className="mr-2 text-yellow-500">⚠️</span>;
+    }
+
     return (
         <ClientSlideLayout activePage="/client/notificaciones">
             <ClientHeader />
@@ -77,7 +90,7 @@ const ClientNotifications = () => {
                                     ×
                                 </button>
                                 <div className="flex items-center mb-2">
-                                    <span className="mr-2">⚠️</span>
+                                    {getNotificationIcon(n.title)}
                                     <span className="font-bold">{n.title}</span>
                                 </div>
                                 <div className="text-gray-800 whitespace-pre-line">{n.message}</div>

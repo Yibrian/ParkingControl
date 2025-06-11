@@ -9,10 +9,12 @@ return new class extends Migration {
     {
         Schema::create('employee_reservations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('employee_id'); // Empleado que crea la reserva
+            $table->unsignedBigInteger('employee_id'); 
             $table->unsignedBigInteger('space_id');
-            $table->unsignedBigInteger('vehicle_id');
-            $table->date('start_date');
+            $table->unsignedBigInteger('vehicle_id')->nullable();
+            $table->string('vehicle_plate')->nullable();
+            $table->string('vehicle_type')->nullable();
+            $table->date('start_date'); 
             $table->time('start_time');
             $table->date('end_date')->nullable();
             $table->time('end_time')->nullable();
@@ -20,8 +22,6 @@ return new class extends Migration {
             $table->enum('status', ['pendiente', 'confirmada', 'cancelada', 'finalizada'])->default('pendiente');
             $table->timestamps();
 
-            // $table->foreign('space_id')->references('id')->on('spaces');
-            // $table->foreign('vehicle_id')->references('id')->on('vehicles');
         });
     }
 

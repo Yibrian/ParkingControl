@@ -16,6 +16,7 @@ import ClientProfile from './components/ClientProfile';
 import ClientReservations from './components/ClientReservations';
 import ClientNotifications from './components/ClientNotifications';
 import EmployeeProfile from './components/EmployeeProfile';
+import Salida from './components/Salida';
 
 function App() {
     return (
@@ -95,6 +96,14 @@ function App() {
                         element={
                             <PrivateRoute>
                                 <EmployeeProfile />
+                            </PrivateRoute>
+                        }
+                    />
+                    <Route
+                        path="/employee/salida"
+                        element={
+                            <PrivateRoute>
+                                <Salida />
                             </PrivateRoute>
                         }
                     />

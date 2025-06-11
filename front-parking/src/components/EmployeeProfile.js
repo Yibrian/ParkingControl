@@ -90,7 +90,7 @@ const EmployeeProfile = () => {
 
     return (
         <EmployeeSlideLayout activePage="/employee/profile">
-            <EmployeeHeader title="Mi Perfil" />
+            <EmployeeHeader title="" />
             <div className="px-6 py-4">
                 <div className="max-w-4xl mx-auto bg-white p-8 shadow-md rounded-lg">
                     <h1 className="text-2xl font-bold text-gray-900 mb-6">Mi Perfil</h1>

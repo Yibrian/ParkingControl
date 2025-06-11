@@ -24,7 +24,7 @@ const ClientDashboard = () => {
         fetchSpaces();
     }, []);
 
-    // Obtener vehículos del usuario (puedes ajustar el user_id según tu lógica)
+   
     useEffect(() => {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (!currentUser) return;

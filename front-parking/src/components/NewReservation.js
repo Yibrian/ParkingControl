@@ -14,9 +14,64 @@ const NewReservation = ({ space, vehicles, onBack }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        // Horario de apertura/cierre del espacio (ejemplo: "08:00", "22:00")
+        const openTime = space.start_time; // formato "HH:mm"
+        const closeTime = space.end_time;  // formato "HH:mm"
+
+        // Validaciones de fechas y horas
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const todayStr = today.toISOString().slice(0, 10);
+
+        // 1. Fecha de inicio: no puede ser anterior a hoy
+        if (startDate < todayStr) {
+            toast.error('La fecha de inicio no puede ser anterior a hoy.');
+            return;
+        }
+
+        // 2. Hora de inicio debe estar dentro del horario de apertura si es hoy
+        if (startDate === todayStr) {
+            if (startTime < openTime || startTime > closeTime) {
+                toast.error(`La hora de inicio debe estar entre ${openTime} y ${closeTime}.`);
+                return;
+            }
+        }
+
+        // 3. Fecha de finalización: igual o posterior a la de inicio
+        if (endDate < startDate) {
+            toast.error('La fecha de finalización debe ser igual o posterior a la de inicio.');
+            return;
+        }
+
+        // 4. Hora de finalización debe estar dentro del horario de apertura/cierre
+        if (endTime < openTime || endTime > closeTime) {
+            toast.error(`La hora de finalización debe estar entre ${openTime} y ${closeTime}.`);
+            return;
+        }
+
+        // 5. Si es el mismo día, la hora de finalización debe ser mayor a la de inicio
+        if (startDate === endDate) {
+            if (startTime >= endTime) {
+                toast.error('La hora de finalización debe ser posterior a la de inicio.');
+                return;
+            }
+        }
+
+        // 6. Duración válida: la fecha/hora de finalización debe ser posterior a la de inicio
+        const startDateTime = new Date(`${startDate}T${startTime}`);
+        const endDateTime = new Date(`${endDate}T${endTime}`);
+        if (endDateTime <= startDateTime) {
+            toast.error('La fecha y hora de finalización debe ser posterior a la de inicio.');
+            return;
+        }
+
+        const diffMs = endDateTime - startDateTime;
+        const diffHours = diffMs / (1000 * 60 * 60);
+        const totalAmount = Math.ceil(diffHours) * space.price_per_hour;
+
         setLoading(true);
         try {
-            
             const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
                 user_id: user.id,
                 space_id: space.id,
@@ -26,7 +81,7 @@ const NewReservation = ({ space, vehicles, onBack }) => {
                 end_date: endDate,
                 end_time: endTime,
                 description,
-                amount: space.price_per_hour,
+                amount: totalAmount,
             });
             window.location.href = stripeRes.data.url;
         } catch (error) {

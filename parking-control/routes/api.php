@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\EmployeeReservationController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
@@ -27,5 +28,6 @@ Route::prefix('v1')->group(function () {
         Route::delete('/profile/picture', [UserController::class, 'deleteProfilePicture']);
         Route::patch('users/{id}/toggle-active', [UserController::class, 'toggleActive']);
         Route::put('/users/{id}', [UserController::class, 'updateUser']);
+        
     });
 });

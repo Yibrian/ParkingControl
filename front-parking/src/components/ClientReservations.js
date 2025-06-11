@@ -15,8 +15,8 @@ function formatTime(time) {
 
 function formatDate(date) {
     if (!date) return '';
-    const d = new Date(date);
-    return d.toLocaleDateString('es-CO', { year: 'numeric', month: 'short', day: 'numeric' });
+    const [year, month, day] = date.split('-');
+    return `${day}/${month}/${year}`;
 }
 
 const ClientReservations = () => {
@@ -25,7 +25,7 @@ const ClientReservations = () => {
     const [showModal, setShowModal] = useState(false);
     const [extraHours, setExtraHours] = useState(1);
     const [loading, setLoading] = useState(false);
-    const [spaces, setSpaces] = useState([]); // Agregado para almacenar los espacios
+    const [spaces, setSpaces] = useState([]); 
 
     const user = JSON.parse(localStorage.getItem('currentUser'));
 
@@ -47,7 +47,7 @@ const ClientReservations = () => {
         const fetchSpaces = async () => {
             try {
                 const res = await parkingSpacesApi.get('/spaces');
-                setSpaces(res.data); // Suponiendo que el endpoint devuelve la lista de espacios
+                setSpaces(res.data); 
             } catch {
                 toast.error('No se pudieron cargar los espacios.');
             }
@@ -64,7 +64,6 @@ const ClientReservations = () => {
     const handleConfirmAddHours = async () => {
         setLoading(true);
         try {
-            // Calcula el nuevo end_time y el monto a pagar
             const space = selectedReservation.space
                 ? selectedReservation.space
                 : spaces.find(s => s.id === selectedReservation.space_id);
@@ -77,23 +76,13 @@ const ClientReservations = () => {
                 return;
             }
 
-            
-
-            
-            await parkingSpacesApi.put(`/reservations/${selectedReservation.id}/extend`, {
-                extra_hours: extraHours
-            });
-
-           
             const stripeRes = await parkingSpacesApi.post('/stripe/checkout', {
                 reservation_id: selectedReservation.id,
-                amount: pricePerHour * extraHours, // Usa el monto calculado, no solo price_per_hour
+                extra_hours: extraHours,
+                amount: pricePerHour * extraHours,
             });
-
-           
             window.location.href = stripeRes.data.url;
         } catch (error) {
-            console.error(error);
             toast.error('No se pudo procesar la extensión.');
         } finally {
             setLoading(false);
@@ -139,14 +128,19 @@ const ClientReservations = () => {
                             <div className="flex items-center gap-x-4">
                                 <button
                                     className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-                                    onClick={() => handleCancelReservation(res.id)}
-                                    disabled={res.status === 'cancelada' || res.status === 'finalizada'}
+                                    onClick={() => {
+                                        if (res.status === 'confirmada') handleCancelReservation(res.id);
+                                    }}
+                                    disabled={res.status !== 'confirmada'}
                                 >
                                     Cancelar Reserva
                                 </button>
                                 <button
                                     className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-                                    onClick={() => handleAddHoursClick(res)}
+                                    onClick={() => {
+                                        if (res.status === 'confirmada') handleAddHoursClick(res);
+                                    }}
+                                    disabled={res.status !== 'confirmada'}
                                 >
                                     Agregar Horas
                                 </button>
